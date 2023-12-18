@@ -1,0 +1,43 @@
+# www-endgame
+## ZAŁOŻENIA
+### Właściciel:
+- zarządza parkingami
+	- tworzy i edytuje parametry
+		- adres
+		- ilość poziomów
+		- ilość miejsc parkingowych na poziom
+		- ustala taryfę
+			- co najmniej 2 różne
+			- np. 8-14 → x zł, 14-8 → y zł + pierwsza godzina gratis
+	 - monitoruje
+		 - aktualny stan parkingu
+			 - wybór parkingu→poziomu→miejsca
+			 - stan miejsca, historia zajętości, zarobek dzienny i chwilowy
+			 - →statystyki miejsca
+	- przegląda statystyki + wyszukiwanie
+		- parkingów, miejsc, dochodu
+		- gdzie i kiedy parkował samochód + ile zapłacił
+	- zarządza kosztami miesięcznymi
+		- dodaje, usuwa
+	- podsumowanie
+		- zysk (przychody-koszta) jako wykresy
+- przegląda zarejestrowanych kierowców i ich pojazdy
+	- podgląd salda
+	- zablokowanie kierowcy
+	- →statystyki dla pojazdu
+----
+### Kierowca:
+- posiada konto
+	- rejestracja, logowanie, wylogowanie
+	- przypomnienie hasła
+	- dane osobowe: imię i nazwisko
+	- edycja danych → ?maila
+- posiada pojazdy (marka/model, numer rejestracyjny, ?kolor)
+	- dodaje, usuwa, edytuje
+	- parkuje
+		- szuka najtańszego parkingu z wolnym miejscem → wjeżdża na parking → dostaje bilet → zajmuje miejsce
+		- wyjeżdża → wczytuje bilet → opłaca z salda
+- posiada saldo
+	- opłaca wjazdy i wyjazdy z parkingu
+	- dokonuje wpłaty
+	- jeżeli <0 po uruchomieniu strony powiadomienie zapłać
