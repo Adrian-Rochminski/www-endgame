@@ -1,13 +1,13 @@
-import {Button} from "primereact/button";
+// pages/driver/page.js
+import React from 'react';
+import PageClient from './page.client';
 
-export default function Home() {
+const Page = () => {
   return (
-      <div className="block">
-          <p className="text-6xl w-10">ParkingOS</p>
-          <div className="flex justify-content-between flex-wrap">
-              <Button className="flex" label="Login" />
-              <Button className="flex" label="Register" />
-          </div>
-      </div>
-  )
-}
+    <div>
+      <PageClient />
+    </div>
+  );
+};
+
+export default Page;

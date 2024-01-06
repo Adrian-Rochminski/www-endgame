@@ -1,11 +1,9 @@
-import React from 'react';
-import Navbar from '../../../../components/Navbar';
+import {Button} from "primereact/button";
 
 export default function AddCar() {
   return (
-    <div className="AddCar">
-      <Navbar />
-      {/* other components */}
-    </div>
-  );
+      <div className="block">
+          <p className="text-6xl w-10">under construction</p>
+      </div>
+  )
 }
