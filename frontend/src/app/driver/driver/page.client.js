@@ -12,6 +12,8 @@ import { Button } from 'primereact/button';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { SERVER_ADDRESS } from '../../../../utils/Links'
+import { Toast } from 'primereact/toast';
+import reload from '../../../../utils/Reload'
 
 export default function Driver() {
     const [plates, setPlates] = useState([]);
@@ -27,6 +29,8 @@ export default function Driver() {
     const [visibleAM, setVisibleAM] = useState(false);
     const [visibleST, setVisibleST] = useState(false);
     const [selectedLicensePlate, setSelectedLicensePlate] = useState(null);
+
+    const toast = useRef(null);
 
     // First request: Fetch plates
     useEffect(() => {
@@ -90,6 +94,36 @@ export default function Driver() {
       setVisibleST(true)
     }
 
+    function remove(selectedLicensePlate){
+      axios.post(`${SERVER_ADDRESS}/user/${dummyUserData._id}/license_plate`, {"license_plate": selectedLicensePlate})
+      .then(response => {
+        console.log(response.data);
+        toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(response.data)}`, life: 3000 });
+      })
+      .catch(error => {
+        console.error('Error fetching data 1:', error);
+        toast.current.show({ severity: 'error', summary: 'Błąd', detail: `${error}`, life: 3000 });
+      });
+      reload(3000);
+    }
+
+    function updateLicensePlateStatus(is_occupied){
+      const request = {
+        "license_plate": selectedLicensePlate,
+        "is_occupied": is_occupied
+      } 
+      axios.post(`${SERVER_ADDRESS}/user/${dummyUserData._id}/license_plate_status`, request)
+      .then(response => {
+        console.log(response.data);
+        toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(response.data)}`, life: 3000 });
+      })
+      .catch(error => {
+        console.error('Error fetching data 1:', error);
+        toast.current.show({ severity: 'error', summary: 'Błąd', detail: `${error}`, life: 3000 });
+      });
+      reload(3000);
+    }
+
     return (
         <div className="Driver" style={style}>
           <Navbar />
@@ -117,7 +151,7 @@ export default function Driver() {
                             >
                                 <p className="m-0">
                                     <Button label="Bilet" onClick={() => show(plate.license_plate)}/>
-                                    <Button label="Wyjedź" style={{ marginLeft: '0.5em' }} />
+                                    <Button label="Wyjedź" style={{ marginLeft: '0.5em' }} onClick={() => updateLicensePlateStatus(0)}/>
                                 </p>
                             </AccordionTab>
                         ) : (
@@ -131,8 +165,8 @@ export default function Driver() {
                             >
                                 <p className="m-0">
                                     <Button label="Edytuj" onClick={() => edit(plate.license_plate)}/>
-                                    <Button label="Zaparkuj" style={{ marginLeft: '0.5em' }} />
-                                    <Button label="Usuń" style={{ marginLeft: '0.5em' }} />
+                                    <Button label="Zaparkuj" style={{ marginLeft: '0.5em' }} onClick={() => updateLicensePlateStatus(1)}/>
+                                    <Button label="Usuń" style={{ marginLeft: '0.5em' }} onClick={() => remove(plate.license_plate)} />
                                 </p>
                             </AccordionTab>
                         )
@@ -163,6 +197,8 @@ export default function Driver() {
                 onHide={() => setVisibleST(false)}
                 licensePlate={selectedLicensePlate}
             />
+
+          <Toast ref={toast} />
 
         </div>
 
