@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Navbar from '../../../components/Navbar';
 import CreateUpdateDialog from '../../../components/CreateUpdateDialog';
+import ShowTicketDialog from '../../../components/ShowTicketDialog';
+import AddMoneyDialog from '../../../components/AddMoneyDialog';
 import ParkingOSImage from "../../../../public/ParkingOS_icon.png";
 import axios from 'axios';
 import { Card } from 'primereact/card';
@@ -21,8 +23,10 @@ export default function Driver() {
       "username": "nowy_uzytkownik"
     }
 
-    const [visible, setVisible] = useState(false);
-    const [oldLicensePlate, setOldLicensePlate] = useState(null);
+    const [visibleCUD, setVisibleCUD] = useState(false);
+    const [visibleAM, setVisibleAM] = useState(false);
+    const [visibleST, setVisibleST] = useState(false);
+    const [selectedLicensePlate, setSelectedLicensePlate] = useState(null);
 
     // First request: Fetch plates
     useEffect(() => {
@@ -76,10 +80,14 @@ export default function Driver() {
         </>
     );
 
-    function edit(oldLicensePlate){
-      console.log(oldLicensePlate);
-        setOldLicensePlate(oldLicensePlate);
-        setVisible(true)
+    function edit(selectedLicensePlate){
+        setSelectedLicensePlate(selectedLicensePlate);
+        setVisibleCUD(true)
+    }
+
+    function show(selectedLicensePlate){
+      setSelectedLicensePlate(selectedLicensePlate);
+      setVisibleST(true)
     }
 
     return (
@@ -90,10 +98,10 @@ export default function Driver() {
                 <p className="m-0">Witaj: {dummyUserData.username}</p>
 
                 <p className="m-0">Twoje saldo: {dummyUserData.money}</p>
-                <Button label="Doładuj konto" />
+                <Button label="Doładuj konto" onClick={() => setVisibleAM(true)}/>
 
                 <p className="m-0">Twoje samochody:</p>
-                <ScrollPanel style={{ width: '200px', height: '300px' }}>
+                <ScrollPanel style={{ width: '400px', height: '300px' }}>
                   <div className="card">
                   <Accordion activeIndex={0}>
                     {platesWithState.map((plate, index) => (
@@ -108,7 +116,7 @@ export default function Driver() {
                                 key={index}
                             >
                                 <p className="m-0">
-                                    <Button label="Bilet" />
+                                    <Button label="Bilet" onClick={() => show(plate.license_plate)}/>
                                     <Button label="Wyjedź" style={{ marginLeft: '0.5em' }} />
                                 </p>
                             </AccordionTab>
@@ -124,6 +132,7 @@ export default function Driver() {
                                 <p className="m-0">
                                     <Button label="Edytuj" onClick={() => edit(plate.license_plate)}/>
                                     <Button label="Zaparkuj" style={{ marginLeft: '0.5em' }} />
+                                    <Button label="Usuń" style={{ marginLeft: '0.5em' }} />
                                 </p>
                             </AccordionTab>
                         )
@@ -139,9 +148,20 @@ export default function Driver() {
           
         
           <CreateUpdateDialog 
-                visible={visible} 
-                onHide={() => setVisible(false)} 
-                oldLicensePlate={oldLicensePlate}
+                visible={visibleCUD} 
+                onHide={() => setVisibleCUD(false)} 
+                oldLicensePlate={selectedLicensePlate}
+            />
+
+          <AddMoneyDialog 
+                visible={visibleAM} 
+                onHide={() => setVisibleAM(false)}
+            />
+
+          <ShowTicketDialog 
+                visible={visibleST} 
+                onHide={() => setVisibleST(false)}
+                licensePlate={selectedLicensePlate}
             />
 
         </div>
