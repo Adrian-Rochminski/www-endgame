@@ -32,7 +32,7 @@ def register():
 
     users_collection.insert_one(new_user)
 
-    return jsonify({'message': 'User has been registered'}), 201
+    return jsonify({'msg': 'User has been registered'}), 201
 
 
 @views.route('/login', methods=['POST'])
@@ -64,9 +64,9 @@ def add_license_plate():
     )
 
     if result.modified_count:
-        return jsonify({'message': 'License plate added successfully'}), 200
+        return jsonify({'msg': 'License plate added successfully'}), 200
     else:
-        return jsonify({'message': 'License plate already exists or user not found'}), 400
+        return jsonify({'msg': 'License plate already exists or user not found'}), 400
 
 
 @views.route('/user/license_plate', methods=['DELETE'])
@@ -82,9 +82,9 @@ def remove_license_plate():
     )
 
     if result.modified_count:
-        return jsonify({'message': 'License plate removed successfully'}), 200
+        return jsonify({'msg': 'License plate removed successfully'}), 200
     else:
-        return jsonify({'message': 'License plate not found or user not found'}), 400
+        return jsonify({'msg': 'License plate not found or user not found'}), 400
 
 
 @views.route('/user/license_plates', methods=['GET'])
@@ -96,7 +96,7 @@ def get_license_plates():
     if user:
         return jsonify({'license_plates': user.get('license_plates', [])}), 200
     else:
-        return jsonify({'message': 'User not found'}), 404
+        return jsonify({'msg': 'User not found'}), 404
 
 
 @views.route('/user/update_license_plate', methods=['POST'])
@@ -113,9 +113,9 @@ def update_license_plate():
     )
 
     if result.modified_count:
-        return jsonify({'message': 'License plate updated successfully'}), 200
+        return jsonify({'msg': 'License plate updated successfully'}), 200
     else:
-        return jsonify({'message': 'Old license plate not found or user not found'}), 400
+        return jsonify({'msg': 'Old license plate not found or user not found'}), 400
 
 
 @views.route('/users', methods=['GET'])
