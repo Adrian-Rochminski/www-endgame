@@ -51,8 +51,10 @@ def create_app():
     app = Flask(__name__)
 
     from .views import views
+    from .parking import parking
 
     app.register_blueprint(views, url_prefix='/')
+    app.register_blueprint(parking, url_prefix='/parking')
     app.config['JWT_SECRET_KEY'] = 'www-secret-key-to-jwt-tokens'
     jwt = JWTManager(app)
     return app
