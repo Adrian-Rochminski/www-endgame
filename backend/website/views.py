@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, make_response
-from flask_jwt_extended import create_access_token, jwt_required
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
 from website import db
 import uuid
@@ -45,15 +45,16 @@ def login():
     user = users_collection.find_one({'username': data['username']})
 
     if user and check_password_hash(user['password'], data['password']):
-        access_token = create_access_token(identity=data['username'])
-        return jsonify(access_token=access_token, user=user['_id']), 200
+        access_token = create_access_token(identity=user['_id'])
+        return jsonify(access_token=access_token), 200
     else:
         return make_response('Bad username or password', 401)
 
 
-@views.route('/user/<user_id>/license_plate', methods=['PUT'])
+@views.route('/user/license_plate', methods=['PUT'])
 @jwt_required()
-def add_license_plate(user_id):
+def add_license_plate():
+    user_id = get_jwt_identity()
     data = request.get_json()
     new_plate = data['license_plate']
 
@@ -68,9 +69,10 @@ def add_license_plate(user_id):
         return jsonify({'message': 'License plate already exists or user not found'}), 400
 
 
-@views.route('/user/<user_id>/license_plate', methods=['DELETE'])
+@views.route('/user/license_plate', methods=['DELETE'])
 @jwt_required()
-def remove_license_plate(user_id):
+def remove_license_plate():
+    user_id = get_jwt_identity()
     data = request.get_json()
     plate_to_remove = data['license_plate']
 
@@ -85,9 +87,10 @@ def remove_license_plate(user_id):
         return jsonify({'message': 'License plate not found or user not found'}), 400
 
 
-@views.route('/user/<user_id>/license_plates', methods=['GET'])
+@views.route('/user/license_plates', methods=['GET'])
 @jwt_required()
-def get_license_plates(user_id):
+def get_license_plates():
+    user_id = get_jwt_identity()
     user = users_collection.find_one({'_id': user_id}, {'license_plates': 1, '_id': 0})
 
     if user:
@@ -96,9 +99,10 @@ def get_license_plates(user_id):
         return jsonify({'message': 'User not found'}), 404
 
 
-@views.route('/user/<user_id>/update_license_plate', methods=['POST'])
+@views.route('/user/update_license_plate', methods=['POST'])
 @jwt_required()
-def update_license_plate(user_id):
+def update_license_plate():
+    user_id = get_jwt_identity()
     data = request.get_json()
     old_plate = data['old_license_plate']
     new_plate = data['new_license_plate']
