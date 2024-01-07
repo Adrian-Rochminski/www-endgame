@@ -115,7 +115,7 @@ def update_license_plate():
     if result.modified_count:
         return jsonify({'msg': 'License plate updated successfully'}), 200
     else:
-        return jsonify({'msg': 'Old license plate not found or user not found'}), 400
+        return jsonify({'msg': 'Old license plate not found'}), 400
 
 
 @views.route('/users', methods=['GET'])
