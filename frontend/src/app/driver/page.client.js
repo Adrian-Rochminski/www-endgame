@@ -1,19 +1,19 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react';
-import Navbar from '../../../components/Navbar';
-import CreateUpdateDialog from '../../../components/CreateUpdateDialog';
-import ShowTicketDialog from '../../../components/ShowTicketDialog';
-import AddMoneyDialog from '../../../components/AddMoneyDialog';
-import ParkingOSImage from "../../../../public/ParkingOS_icon.png";
+import Navbar from '../../components/Navbar';
+import CreateUpdateDialog from '../../components/CreateUpdateDialog';
+import ShowTicketDialog from '../../components/ShowTicketDialog';
+import AddMoneyDialog from '../../components/AddMoneyDialog';
+import ParkingOSImage from "../../../public/ParkingOS_icon.png";
 import axios from 'axios';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { ScrollPanel } from 'primereact/scrollpanel';
-import { SERVER_ADDRESS } from '../../../../utils/Links'
+import { SERVER_ADDRESS } from '../../../utils/Links'
 import { Toast } from 'primereact/toast';
-import reload from '../../../../utils/Reload'
+import reload from '../../../utils/Reload'
 
 export default function Driver() {
     const [plates, setPlates] = useState([]);
@@ -221,7 +221,6 @@ const driver_style = {
   backgroundColor: "#fff",
   color: "#000",
   margin: "auto",
-  margin: "50px",
 }
 
 const navbar_img_style = {
