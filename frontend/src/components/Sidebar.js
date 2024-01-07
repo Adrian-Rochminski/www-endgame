@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import { Sidebar } from 'primereact/sidebar';
 import { Button } from 'primereact/button';
 import axios from 'axios';
-import { SERVER_ADDRESS } from '../../utils/Links'
-import { CLIENT_ADDRESS } from '../../utils/Links'
+import { SERVER_ADDRESS, CLIENT_ADDRESS } from '../../utils/Links'
 
 export default function MenuSidebar({ visible, onHide }) {
 
@@ -24,8 +23,11 @@ export default function MenuSidebar({ visible, onHide }) {
           .catch(error => {
             console.error('Error fetching data logout:', error);
           });
-          console.log(`${CLIENT_ADDRESS}/`);
-          window.location.href = "http://127.0.0.1:3000/";
+          window.location.href = `${CLIENT_ADDRESS}/`;
+    }
+
+    function toPasswdChange(){
+          window.location.href = `${CLIENT_ADDRESS}/driver/change_password`;
     }
 
     return (
@@ -33,7 +35,7 @@ export default function MenuSidebar({ visible, onHide }) {
             <Sidebar visible={visible} onHide={onHide} className="w-20rem md:w-20rem lg:w-30rem">
                 <h2>Options</h2>
                 <ol>
-                    <li><Button label="Zmień hasło" severity="Warning" /></li>
+                    <li><Button label="Zmień hasło" severity="Warning" onClick={() => toPasswdChange()}/></li>
                     <li><Button label="Wyloguj" severity="Danger" onClick={() => logout()}/></li>
                 </ol>
             </Sidebar>
