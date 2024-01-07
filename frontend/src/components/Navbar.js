@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Menubar } from 'primereact/menubar';
 import ParkingOSImage from "../../public/ParkingOS_icon.png";
+import MenuSidebar from './Sidebar';
+import { Button } from 'primereact/button';
 
 const Navbar = () => {
+    const [visible, setVisible] = useState(false);
+
   const items = [
     {
        label: 'ParkingOS',
@@ -10,10 +14,16 @@ const Navbar = () => {
   ];
 
   const start = <img alt="ParkingOS" src={ParkingOSImage.src} style={navbar_img_style} className="mr-2"></img>;
+ const end = <Button icon="pi pi-arrow-right" onClick={() => setVisible(true)}/>
 
   return (
     <div style={navbar_div_style}>
-      <Menubar model={items} start={start} />
+      <Menubar model={items} start={start} end={end} />
+
+      <MenuSidebar
+            visible={visible} 
+            onHide={() => setVisible(false)}
+        />
     </div>
   );
 };
