@@ -150,7 +150,7 @@ def find_cheapest():
     if cheapest_lot:
         return jsonify(cheapest_lot), 200
     else:
-        return jsonify({"msg": "There is no parking available"}), 404
+        return jsonify({"msg": "No parking available"}), 404
 
 
 @parking.route("/park", methods=["POST"])
