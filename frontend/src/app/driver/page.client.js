@@ -5,6 +5,7 @@ import Navbar from '../../components/Navbar';
 import CreateUpdateDialog from '../../components/CreateUpdateDialog';
 import ShowTicketDialog from '../../components/ShowTicketDialog';
 import AddMoneyDialog from '../../components/AddMoneyDialog';
+import ParkDialog from '../../components/ParkDialog';
 import ParkingOSImage from "../../../public/ParkingOS_icon.png";
 import axios from 'axios';
 import { Card } from 'primereact/card';
@@ -28,6 +29,7 @@ export default function Driver() {
     const [visibleCUD, setVisibleCUD] = useState(false);
     const [visibleAM, setVisibleAM] = useState(false);
     const [visibleST, setVisibleST] = useState(false);
+    const [visibleP, setVisibleP] = useState(false);
     const [selectedLicensePlate, setSelectedLicensePlate] = useState(null);
 
     const toast = useRef(null);
@@ -92,6 +94,11 @@ export default function Driver() {
     function show(selectedLicensePlate){
       setSelectedLicensePlate(selectedLicensePlate);
       setVisibleST(true)
+    }
+
+    function park(selectedLicensePlate){
+      setSelectedLicensePlate(selectedLicensePlate);
+      setVisibleP(true)
     }
 
     function remove(selectedLicensePlate){
@@ -165,7 +172,7 @@ export default function Driver() {
                             >
                                 <p className="m-0">
                                     <Button label="Edytuj" onClick={() => edit(plate.license_plate)}/>
-                                    <Button label="Zaparkuj" style={{ marginLeft: '0.5em' }} onClick={() => updateLicensePlateStatus(1)}/>
+                                    <Button label="Zaparkuj" style={{ marginLeft: '0.5em' }} onClick={() => park(plate.license_plate)}/>
                                     <Button label="Usuń" style={{ marginLeft: '0.5em' }} onClick={() => remove(plate.license_plate)} />
                                 </p>
                             </AccordionTab>
@@ -197,6 +204,12 @@ export default function Driver() {
                 onHide={() => setVisibleST(false)}
                 licensePlate={selectedLicensePlate}
             />
+
+          <ParkDialog 
+              visible={visibleP} 
+              onHide={() => setVisibleP(false)}
+              licensePlate={selectedLicensePlate}
+          />
 
           <Toast ref={toast} />
 
