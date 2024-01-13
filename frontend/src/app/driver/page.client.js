@@ -34,7 +34,7 @@ export default function Driver() {
 
     // First request: Fetch plates
     useEffect(() => {
-        axios.get(`${SERVER_ADDRESS}/user/${dummyUserData._id}/license_plates`)
+        axios.get(`${SERVER_ADDRESS}/user/license_plates`)
           .then(response => {
             console.log(response.data);
             setPlates(response.data.license_plates)
@@ -95,7 +95,7 @@ export default function Driver() {
     }
 
     function remove(selectedLicensePlate){
-      axios.post(`${SERVER_ADDRESS}/user/${dummyUserData._id}/license_plate`, {"license_plate": selectedLicensePlate})
+      axios.post(`${SERVER_ADDRESS}/user/license_plate`, {"license_plate": selectedLicensePlate})
       .then(response => {
         console.log(response.data);
         toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(response.data)}`, life: 3000 });
@@ -112,7 +112,7 @@ export default function Driver() {
         "license_plate": selectedLicensePlate,
         "is_occupied": is_occupied
       } 
-      axios.post(`${SERVER_ADDRESS}/user/${dummyUserData._id}/license_plate_status`, request)
+      axios.post(`${SERVER_ADDRESS}/user/license_plate_status`, request)
       .then(response => {
         console.log(response.data);
         toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(response.data)}`, life: 3000 });

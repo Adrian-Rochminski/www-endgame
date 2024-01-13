@@ -8,13 +8,6 @@ const ShowTicketDialog = ({ visible, onHide, licensePlate }) => {
 
     const [plateDetails, setPlateDetails] = useState(null);
 
-    const dummyUserData = {
-        "_id": "a61f338f-5651-47cf-ae44-5eee67b825cc",
-        "license_plates": ["VFK-8994", "RWM-9308", "GVU-1723", "NAP-0519", "YIU-5170", "ZRH-3452", "BTD-4765", "TUT-3628", "OHL-5890", "XYZ-6003"],
-        "money": 0.0,
-        "username": "nowy_uzytkownik"
-      }
-
       const dummyPlateDetails = {
         "location": "ul. Wółczańska 189, Łódź",
         "end_date": "10:40 19.12.2023",
@@ -22,7 +15,7 @@ const ShowTicketDialog = ({ visible, onHide, licensePlate }) => {
       }
 
       useEffect(() => {
-        axios.post(`${SERVER_ADDRESS}/user/${dummyUserData._id}/license_plate_details`, licensePlate)
+        axios.post(`${SERVER_ADDRESS}/user/license_plate_details`, licensePlate)
           .then(response => {
             console.log(response.data);
             setPlateDetails(response.data);

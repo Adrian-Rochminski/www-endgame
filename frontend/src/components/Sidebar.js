@@ -7,16 +7,8 @@ import { SERVER_ADDRESS, CLIENT_ADDRESS } from '../../utils/Links'
 
 export default function MenuSidebar({ visible, onHide }) {
 
-    const dummyUserData = {
-        "_id": "a61f338f-5651-47cf-ae44-5eee67b825cc",
-        "license_plates": ["VFK-8994", "RWM-9308", "GVU-1723", "NAP-0519", "YIU-5170", "ZRH-3452", "BTD-4765", "TUT-3628", "OHL-5890", "XYZ-6003"],
-        "money": 0.0,
-        "username": "nowy_uzytkownik"
-      }
-  
-
     function logout(){
-        axios.get(`${SERVER_ADDRESS}/user/${dummyUserData._id}/logout`)
+        axios.get(`${SERVER_ADDRESS}/user/logout`)
           .then(response => {
             console.log(response.data);
           })
