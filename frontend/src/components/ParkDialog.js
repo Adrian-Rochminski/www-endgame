@@ -16,6 +16,7 @@ const ParkDialog = ({ visible, onHide, licensePlate }) => {
     const toast = useRef(null);
     const [parkings, setParkings] = useState([]);
 
+    // Get list of existing parkings
     useEffect(() => {
         axios.get(`${SERVER_ADDRESS}/parking/parkings`)
           .then(response => {
@@ -29,6 +30,7 @@ const ParkDialog = ({ visible, onHide, licensePlate }) => {
       }, []);
     if (!parkings) { return <p>Waiting for parkings ...</p>; }
 
+    // Calculate capacity of parking
     function calculateParkingStats(data) {
         let totalPlacesPerFloor = {};
         let freePlacesPerFloor = {};
@@ -53,6 +55,7 @@ const ParkDialog = ({ visible, onHide, licensePlate }) => {
         return parkingStats;
     }
 
+    // Set appropriate color based on parking capacity
     function getAccordionColor(stats) {
         let free = 0
         let total = 0
@@ -67,6 +70,7 @@ const ParkDialog = ({ visible, onHide, licensePlate }) => {
         else return "gray"
     }
 
+    // Parking request
     const select_parking = (parking_id) => {
         let request = {
             "plate": {licensePlate},
