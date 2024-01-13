@@ -118,22 +118,22 @@ const ParkDialog = ({ visible, onHide, licensePlate }) => {
                                         disabled={statsColor == "gray"}
                                     >
                                         <div>
-                                            <h5><b>Basic:</b></h5>
-                                            <p>day_rate: {parking.day_rate}</p>
-                                            <p>night_rate: {parking.night_rate}</p>
-                                            <p>day_time_end: {parking.day_time_end}</p>
-                                            <p>day_time_start: {parking.day_time_start}</p>
+                                            <h5><b>Dane podstawowe</b></h5>
+                                            <p>Taryfa dzienna: {parking.day_rate}</p>
+                                            <p>Taryfa nocna: {parking.night_rate}</p>
+                                            <p>Początek dnia: {parking.day_time_start}</p>
+                                            <p>Koniec dnia: {parking.day_time_end}</p>
                                             {parking.extra_rules && (
                                                 <>
-                                                    <h5><b>Extra rules:</b></h5>
-                                                    <p>first_hour: {parking.extra_rules.first_hour}</p>
-                                                    <p>rate_from_six_hours: {parking.extra_rules.rate_from_six_hours}</p>
+                                                    <h5><b>Dane dodatkowe</b></h5>
+                                                    <p>Pierwsza godzina: {parking.extra_rules.first_hour}</p>
+                                                    <p>Następne 6 godzin: {parking.extra_rules.rate_from_six_hours}</p>
                                                 </>
                                             )}
                                             <div>
-                                                <h5><b>Statistics:</b></h5>
+                                                <h5><b>Statystyki</b></h5>
                                                 {Object.entries(stats).map(([floor, stats]) => (
-                                                    <p key={floor}>Floor {floor} - Free: {stats.free}, Total: {stats.total}</p>
+                                                    <p key={floor}>Piętro {floor} - Wolne: {stats.free}, Całość: {stats.total}</p>
                                                 ))}
                                             </div>
                                             <Button label="Wybierz" onClick={() => select_parking(parking._id)} />
