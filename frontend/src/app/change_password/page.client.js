@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useRef } from 'react';
-import Navbar from '../../../components/Navbar';
+import Navbar from '../../components/Navbar';
 import axios from 'axios';
 import { Card } from 'primereact/card';
-import { SERVER_ADDRESS, CLIENT_ADDRESS } from '../../../../utils/Links'
+import { SERVER_ADDRESS, CLIENT_ADDRESS } from '../../../utils/Links'
 import { Toast } from 'primereact/toast';
 import { Formik, Field, Form } from 'formik';
 

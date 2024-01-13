@@ -10,7 +10,7 @@ import axios from 'axios';
 import { SERVER_ADDRESS } from '../../utils/Links'
 import reload from '../../utils/Reload'
 
-import dummyParkingsData from './dummyParkingsData.json';
+import dummyParkingsData from '../dummyData/dummyParkingsData.json';
 
 const ParkDialog = ({ visible, onHide, licensePlate }) => {
     const toast = useRef(null);

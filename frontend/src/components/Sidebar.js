@@ -19,7 +19,7 @@ export default function MenuSidebar({ visible, onHide }) {
     }
 
     function toPasswdChange(){
-          window.location.href = `${CLIENT_ADDRESS}/driver/change_password`;
+          window.location.href = `${CLIENT_ADDRESS}/change_password`;
     }
 
     return (
