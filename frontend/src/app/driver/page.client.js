@@ -106,7 +106,7 @@ export default function Driver() {
 
     // remove license plate from system
     function remove(selectedLicensePlate){
-      axios.post(`${SERVER_ADDRESS}/user/license_plate`, {"license_plate": selectedLicensePlate})
+      axios.delete(`${SERVER_ADDRESS}/user/license_plate`, {"license_plate": selectedLicensePlate})
       .then(response => {
         console.log(response.data);
         toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(response.data)}`, life: 3000 });
