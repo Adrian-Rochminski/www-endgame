@@ -1,0 +1,73 @@
+[
+    {
+        "_id": "276c3fb1-98c4-1142-842a-64fb1d65ab21",
+        "address": "Łódź, Radwańska 1",
+        "day_rate": 1.5,
+        "day_time_end": "20:00",
+        "day_time_start": "10:00",
+        "extra_rules": {
+            "first_hour": 0.2,
+            "rate_from_six_hours": 2.1
+        },
+        "night_rate": 2.3,
+        "owner_id": "8563f6f2-e55e-4383-bf82-330c95b89321",
+        "floors": 1,
+        "spots_per_floor": 1
+    },
+    {
+        "_id": "276c3fb1-98c4-1142-842a-64fbad65ab21",
+        "address": "Łódź, Radwańska 20",
+        "day_rate": 1.5,
+        "day_time_end": "20:00",
+        "day_time_start": "10:00",
+        "night_rate": 2.3,
+        "owner_id": "856316f2-e55e-4383-bf82-330195b89321",
+        "floors": 1,
+        "spots_per_floor": 3
+    },
+    {
+        "_id": "276c3fb1-98c4-1142-842a-64fbad65ab21",
+        "address": "Łódź, Radwańska 25",
+        "day_rate": 1.5,
+        "day_time_end": "20:00",
+        "day_time_start": "10:00",
+        "extra_rules": {
+            "first_hour": 0.2,
+            "rate_from_six_hours": 2.1
+        },
+        "night_rate": 2.3,
+        "owner_id": "8563f6f2-e55e-4383-bf82-330c95b89321",
+        "floors": 1,
+        "spots_per_floor": 5
+    },
+    {
+        "_id": "276c3fb1-98c4-4042-842a-64fbad65ab97",
+        "address": "Łódź, Radwańska 30",
+        "day_rate": 1.5,
+        "day_time_end": "20:00",
+        "day_time_start": "10:00",
+        "extra_rules": {
+            "first_hour": 0.2,
+            "rate_from_six_hours": 2.1
+        },
+        "night_rate": 2.3,
+        "owner_id": "8563f6f2-e55e-4383-bf82-330c95b89321",
+        "floors": 2,
+        "spots_per_floor": 5
+    },
+    {
+        "_id": "3336c3fb1-98c4-4042-842a-64fbad65ab33",
+        "address": "Łódź, Radwańska 70",
+        "day_rate": 3.5,
+        "day_time_end": "20:40",
+        "day_time_start": "8:30",
+        "extra_rules": {
+            "first_hour": 0.1,
+            "rate_from_six_hours": 2.0
+        },
+        "night_rate": 5.3,
+        "owner_id": "8563f6f2-e55e-4383-bf82-330c95b89321",
+        "floors": 3,
+        "spots_per_floor": 10
+    }
+]

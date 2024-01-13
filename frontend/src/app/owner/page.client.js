@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Navbar from '../../components/Navbar';
 import axios from 'axios';
+import CreateUpdateParkingDialog from '../../components/CreateUpdateParkingDialog';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Accordion, AccordionTab } from 'primereact/accordion';
@@ -10,7 +11,7 @@ import { ScrollPanel } from 'primereact/scrollpanel';
 import { SERVER_ADDRESS } from '../../../utils/Links'
 import { Toast } from 'primereact/toast';
 import reload from '../../../utils/Reload'
-import dummyParkingsData from '../../dummyData/dummyParkingsData.json';
+import dummyParkingsData2 from '../../dummyData/dummyParkingsData2.json';
 
 export default function Owner() {
     const [parkings, setParkings] = useState([]);
@@ -18,6 +19,8 @@ export default function Owner() {
       "_id": "a61f338f-5651-47cf-ae44-5eee67b825cc",
       "username": "owner_user"
     }
+    const [visibleCUPD, setVisibleCUPD] = useState(false);
+    const [selectedParking, setSelectedParking] = useState(null);
 
     const toast = useRef(null);
 
@@ -30,7 +33,7 @@ export default function Owner() {
           })
           .catch(error => {
             console.error('Error fetching data 1:', error);
-            setParkings(dummyParkingsData)
+            setParkings(dummyParkingsData2)
           });
       }, []);
     if (!parkings) { return <p>Waiting for parkings ...</p>; }
@@ -43,7 +46,8 @@ export default function Owner() {
 
     // Show edit dialog
     function edit(selectedParking){
-      console.log(selectedParking);
+        setSelectedParking(selectedParking);
+        setVisibleCUPD(true)
     }
 
     function liveView(selectedParking){
@@ -52,7 +56,7 @@ export default function Owner() {
 
     // remove parking from system
     function remove(selectedParking){
-      axios.delete(`${SERVER_ADDRESS}/owner/parking`, {"parking_id": selectedParking._id})
+      axios.delete(`${SERVER_ADDRESS}/parking/parking`, {"parking_id": selectedParking._id})
       .then(response => {
         console.log(response.data);
         toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(response.data)}`, life: 3000 });
@@ -99,6 +103,12 @@ export default function Owner() {
             </Card>
           </div>
 
+
+          <CreateUpdateParkingDialog 
+                visible={visibleCUPD} 
+                onHide={() => setVisibleCUPD(false)} 
+                oldParking={selectedParking}
+            />
 
           <Toast ref={toast} />
 
