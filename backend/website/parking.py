@@ -88,7 +88,7 @@ def create_parking():
         "first_hour": data.get("first_hour"),
         "rate_from_six_hours": data.get("rate_from_six_hours")
     }
-    extra_rules = {rule: value for rule, value in extra_rules if value is not None}
+    extra_rules = {rule: value for rule, value in extra_rules.items() if value is not None}
 
     new_parking = {
         "_id": str(uuid.uuid4()),
