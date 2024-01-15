@@ -1,6 +1,11 @@
 import CredentialsProvider from 'next-auth/providers/credentials'
 
 export const authOptions = {
+    pages: {
+        signIn: '/auth/signin',
+        signOut: '/auth/signout',
+    },
+    
     providers: [
         CredentialsProvider({
             credentials: {
@@ -16,11 +21,9 @@ export const authOptions = {
                         'Content-Type': 'application/json'
                     }
                 })
-                const token = await res.json();
-                if (res.ok && token) {
-                    return {
-                        token: token.access_token,
-                    };
+                const user = await res.json();
+                if (res.ok && user) {
+                    return user;
                 } else {
                     return null;
                 }
@@ -31,7 +34,7 @@ export const authOptions = {
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
-                token.user = user.user;
+                token.username = user.username;
                 token.token = user.token;
             }
             return token;

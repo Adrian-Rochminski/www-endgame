@@ -1,5 +1,4 @@
 export const UserSession = (session) => {
-
     return (
         <>
             <h1>Client Session</h1>
