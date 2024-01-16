@@ -1,9 +1,8 @@
 import uuid
-from datetime import datetime
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from website import db
-
+from datetime import datetime, timedelta
 parking = Blueprint('parking', __name__)
 parking_collection = db['parkings']
 user_collection = db['users']
@@ -205,3 +204,104 @@ def park_the_car():
             )
             return jsonify({"msg": "The car is successfully parked"}), 200
     return jsonify({"msg": "No spot available on this parking"}), 404
+
+
+def calculate_parking_fee(start_time, end_time, day_rate, night_rate, night_hours):
+    total_fee = 0.0
+    current_time = start_time
+
+    while current_time < end_time:
+        if night_hours['from'] <= current_time.time() < night_hours['to']:
+            next_time = datetime.combine(current_time.date(), datetime.strptime(night_hours['to'], "%H:%M").time())
+            hours = (min(end_time, next_time) - current_time).total_seconds() / 3600
+            total_fee += hours * night_rate
+        else:
+            if current_time.time() >= datetime.strptime(night_hours['to'], "%H:%M").time():
+                next_time = datetime.combine(current_time.date() + timedelta(days=1),
+                                             datetime.strptime(night_hours['from'], "%H:%M").time())
+            else:
+                next_time = datetime.combine(current_time.date(),
+                                             datetime.strptime(night_hours['from'], "%H:%M").time())
+            hours = (min(end_time, next_time) - current_time).total_seconds() / 3600
+            total_fee += hours * day_rate
+
+        current_time = next_time
+
+    return total_fee
+
+
+@parking.route("/estimate_parking_fee", methods=["POST"])
+@jwt_required()
+def estimate_parking_fee():
+    data = request.get_json()
+    plate = data['plate']
+    parking_id = data['parking_id']
+
+    parking_lot = parking_collection.find_one({"_id": parking_id})
+    if not parking_lot:
+        return jsonify({"msg": "Parking not found"}), 404
+
+    for usage in parking_lot['current_usage']:
+        if usage['car'] == plate:
+            start_time = datetime.strptime(usage['start_time'], "%Y-%m-%d %H:%M:%S")
+            end_time = datetime.now()
+            fee = calculate_parking_fee(
+                start_time, end_time,
+                parking_lot['day_rate'], parking_lot['night_rate'],
+                {'from': parking_lot['night_hours']['from'], 'to': parking_lot['night_hours']['to']}
+            )
+            return jsonify({"estimated_fee": fee}), 200
+
+    return jsonify({"msg": "Car not found in parking"}), 404
+
+
+# Endpoint do odparkowania pojazdu
+@parking.route("/unpark", methods=["POST"])
+@jwt_required()
+def unpark_car():
+    data = request.get_json()
+    plate = data['plate']
+    parking_id = data['parking_id']
+
+    user_id = get_jwt_identity()
+    user = user_collection.find_one({"_id": user_id})
+    parking_lot = parking_collection.find_one({"_id": parking_id})
+
+    if not parking_lot:
+        return jsonify({"msg": "Parking not found"}), 404
+
+    for usage in parking_lot['current_usage']:
+        if usage['car'] == plate:
+            start_time = datetime.strptime(usage['start_time'], "%Y-%m-%d %H:%M:%S")
+            end_time = datetime.now()
+            fee = calculate_parking_fee(
+                start_time, end_time,
+                parking_lot['day_rate'], parking_lot['night_rate'],
+                {'from': parking_lot['night_hours']['from'], 'to': parking_lot['night_hours']['to']}
+            )
+
+            if user['money'] < fee:
+                return jsonify({"msg": "Insufficient funds"}), 400
+
+            user_collection.update_one(
+                {"_id": user_id},
+                {"$inc": {"money": -fee}}
+            )
+            parking_collection.update_one(
+                {"_id": parking_id},
+                {"$pull": {"current_usage": {"car": plate}}}
+            )
+
+            for spot in parking_lot['spots']:
+                if spot['car'] == plate:
+                    spot['available'] = True
+                    spot['car'] = None
+                    parking_collection.update_one(
+                        {"_id": parking_id},
+                        {"$set": {"spots": parking_lot['spots']}}
+                    )
+                    break
+
+            return jsonify({"msg": "Car unparked successfully", "charged_fee": fee}), 200
+
+    return jsonify({"msg": "Car not found in parking"}), 404
