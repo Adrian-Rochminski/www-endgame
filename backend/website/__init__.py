@@ -1,8 +1,10 @@
 from flask import Flask
 from pymongo import MongoClient, server_api
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 app.config['JWT_SECRET_KEY'] = 'www-secret-key-to-jwt-tokens'
 jwt = JWTManager(app)
 MONGODB_URI = "mongodb+srv://Adrian:Korsarz29@parkinglotdatabase.urd7nin.mongodb.net/?retryWrites=true&w=majority"
