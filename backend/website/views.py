@@ -10,6 +10,7 @@ parkings_collection = db['parkings']
 
 
 @views.route('/register', methods=['POST'])
+@cross_origin()
 def register():
     data = request.get_json()
 
@@ -36,6 +37,7 @@ def register():
 
 
 @views.route('/login', methods=['POST'])
+@cross_origin()
 def login():
     data = request.get_json()
 
@@ -52,6 +54,7 @@ def login():
 
 
 @views.route('/user/license_plate', methods=['PUT'])
+@cross_origin()
 @jwt_required()
 def add_license_plate():
     user_id = get_jwt_identity()
@@ -70,6 +73,7 @@ def add_license_plate():
 
 
 @views.route('/user/license_plate', methods=['DELETE'])
+@cross_origin()
 @jwt_required()
 def remove_license_plate():
     user_id = get_jwt_identity()
@@ -88,6 +92,7 @@ def remove_license_plate():
 
 
 @views.route('/user/license_plates', methods=['GET'])
+@cross_origin()
 @jwt_required()
 def get_license_plates():
     user_id = get_jwt_identity()
@@ -100,6 +105,7 @@ def get_license_plates():
 
 
 @views.route('/user/update_license_plate', methods=['POST'])
+@cross_origin()
 @jwt_required()
 def update_license_plate():
     user_id = get_jwt_identity()
@@ -119,6 +125,7 @@ def update_license_plate():
 
 
 @views.route('/users', methods=['GET'])
+@cross_origin()
 def get_all_users():
     users = users_collection.find()
     users_list = []
