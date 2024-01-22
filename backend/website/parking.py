@@ -255,7 +255,6 @@ def estimate_parking_fee():
     return jsonify({"msg": "Car not found in parking"}), 404
 
 
-# Endpoint do odparkowania pojazdu
 @parking.route("/unpark", methods=["POST"])
 @jwt_required()
 def unpark_car():
@@ -287,6 +286,7 @@ def unpark_car():
                 {"_id": user_id},
                 {"$inc": {"money": -fee}}
             )
+
             parking_collection.update_one(
                 {"_id": parking_id},
                 {"$pull": {"current_usage": {"car": plate}}}
@@ -302,6 +302,40 @@ def unpark_car():
                     )
                     break
 
+            history_record = {
+                "license_plate": plate,
+                "start_date": start_time,
+                "end_date": end_time,
+                "paid": fee
+            }
+            parking_collection.update_one(
+                {"_id": parking_id},
+                {"$push": {"history": history_record}}
+            )
+
             return jsonify({"msg": "Car unparked successfully", "charged_fee": fee}), 200
 
     return jsonify({"msg": "Car not found in parking"}), 404
+
+
+@parking.route("/parkings", methods=["GET"])
+def get_all_parkings():
+    parkings = parking_collection.find({})
+    parking_list = [{"id": str(parking["_id"]), "name": parking["name"]} for parking in parkings]
+    return jsonify(parking_list)
+
+
+@parking.route("/search_parking", methods=["GET"])
+def search_parking():
+    parking_name = request.args.get('name')
+
+    if not parking_name:
+        return jsonify({"msg": "Parking name is required"}), 400
+
+    parkings = parking_collection.find({"name": {"$regex": parking_name, "$options": "i"}})
+    parking_list = [{"id": str(parking["_id"]), "name": parking["name"]} for parking in parkings]
+
+    if parking_list:
+        return jsonify(parking_list)
+    else:
+        return jsonify({"msg": "No parking found with given name"}), 404
