@@ -11,6 +11,10 @@ export default function SignIn() {
     const toast = useRef(null);
     const router = useRouter();
 
+    // if (session) {
+    //     return { redirect: { destination: "/driver" } }
+    // }
+
     const formik = useFormik({
         initialValues: {
             username: '',
@@ -19,6 +23,7 @@ export default function SignIn() {
         onSubmit: async (values) => {
             try {
                 const response = await axios.post('/api/auth/callback/credentials', values);
+                console.log(response);
                 toast.current.show({ severity: 'success', summary: 'Success', detail: 'Sign in successful', life: 3000 });
                 router.push('/driver');
             } catch (error) {

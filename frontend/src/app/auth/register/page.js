@@ -6,6 +6,7 @@ import React, {useRef} from "react";
 import {useFormik} from "formik";
 import { useRouter } from "next/navigation";
 import {Card} from "primereact/card";
+import {SERVER_ADDRESS} from "../../../../utils/Links";
 
 export default function Register() {
     const toast = useRef(null);
@@ -18,13 +19,13 @@ export default function Register() {
         },
         onSubmit: async (values) => {
             try {
-                const response = await axios.post("https://www-project.onrender.com/" + 'register', values);
+                const response = await axios.post(SERVER_ADDRESS + 'register', values);
                 console.log(response);
                 toast.current.show({ severity: 'success', summary: 'Success', detail: "Account created successfully", life: 3000 });
                 router.push('/auth/signin');
             } catch (error) {
                 console.log(error);
-                const errorMessage = error.response?.data?.message || 'An error occurred';
+                const errorMessage = error.response?.data || 'An error occurred';
                 toast.current.show({ severity: 'error', summary: 'Error', detail: errorMessage, life: 3000 });
             }
         },

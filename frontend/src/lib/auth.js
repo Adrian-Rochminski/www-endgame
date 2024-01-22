@@ -1,4 +1,5 @@
 import CredentialsProvider from 'next-auth/providers/credentials'
+import axios from "axios";
 
 export const authOptions = {
     pages: {
@@ -14,15 +15,10 @@ export const authOptions = {
             },
             async authorize (credentials) {
                 let url = process.env.BACKEND_URL + 'login'
-                let res = await fetch(url, {
-                    method: 'POST',
-                    body: JSON.stringify(credentials),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                const user = await res.json();
-                if (res.ok && user) {
+                let res = await axios.post(url, credentials);
+                console.log(res);
+                const user = await res.data;
+                if (res.status && user) {
                     return user;
                 } else {
                     return null;
