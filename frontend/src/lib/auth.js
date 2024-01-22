@@ -1,12 +1,17 @@
 import CredentialsProvider from 'next-auth/providers/credentials'
 import axios from "axios";
+import {SERVER_ADDRESS} from "../../utils/Links";
 
 export const authOptions = {
     pages: {
         signIn: '/auth/signin',
-        signOut: '/auth/signout',
+        //signOut: '/auth/signout',
     },
-    
+
+    session: {
+        strategy: 'jwt'
+    },
+
     providers: [
         CredentialsProvider({
             credentials: {
@@ -14,11 +19,15 @@ export const authOptions = {
                 password: { label: 'password', type: 'password' }
             },
             async authorize (credentials) {
-                let url = process.env.BACKEND_URL + 'login'
-                let res = await axios.post(url, credentials);
-                console.log(res);
-                const user = await res.data;
-                if (res.status && user) {
+                console.log('Authorizing...');
+                let url = SERVER_ADDRESS + 'login'
+                let res = await axios.post(url, credentials, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                const user = res.data;
+                if (res.status === 200 && user) {
                     return user;
                 } else {
                     return null;
@@ -28,16 +37,20 @@ export const authOptions = {
     ],
 
     callbacks: {
-        async jwt({ token, user }) {
+        async jwt({token, user}){
+            console.log('JWT Callback:', {token, user});
             if (user) {
-                token.username = user.username;
-                token.token = user.token;
+                token.accessToken = user.token
+                token.username = user.username
             }
-            return token;
+            return token
         },
-        async session({ session, token }) {
-            session.user = token.user;
-            return session;
-        },
+        async session({ session, token, user }) {
+            console.log('Session Callback:', { session, token, user });
+            session.accessToken = token.accessToken
+            user.accessToken = token.accessToken
+            user.username = token.username
+            return session
+        }
     },
 }

@@ -6,6 +6,7 @@ import { Toast } from 'primereact/toast';
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import {Card} from "primereact/card";
+import {signIn} from "next-auth/react";
 
 export default function SignIn() {
     const toast = useRef(null);
@@ -22,8 +23,12 @@ export default function SignIn() {
         },
         onSubmit: async (values) => {
             try {
-                const response = await axios.post('/api/auth/callback/credentials', values);
-                console.log(response);
+                const response = await signIn("credentials", {
+                    username: values.username,
+                    password: values.password,
+                    redirect: false,
+                });
+                console.log('Login respose: ', {response});
                 toast.current.show({ severity: 'success', summary: 'Success', detail: 'Sign in successful', life: 3000 });
                 router.push('/driver');
             } catch (error) {

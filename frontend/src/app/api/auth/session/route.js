@@ -7,6 +7,6 @@ export async function GET(request) {
 
     return NextResponse.json({
         authenticated: !!session,
-        session,
+        session: session,
     });
 }

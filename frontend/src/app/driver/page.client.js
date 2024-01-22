@@ -15,15 +15,22 @@ import { ScrollPanel } from 'primereact/scrollpanel';
 import { SERVER_ADDRESS } from '../../../utils/Links'
 import { Toast } from 'primereact/toast';
 import reload from '../../../utils/Reload'
+import {getSession} from "next-auth/react";
 
 export default function Driver() {
+    async function getUsername() {
+        let session = await getSession();
+        console.log('Session: ', session);
+        return "nowy_uzytkownik";
+    }
+
     const [plates, setPlates] = useState([]);
     const [platesWithState, setPlatesWithState] = useState([]);
     const dummyUserData = {
       "_id": "a61f338f-5651-47cf-ae44-5eee67b825cc",
       "license_plates": ["VFK-8994", "RWM-9308", "GVU-1723", "NAP-0519", "YIU-5170", "ZRH-3452", "BTD-4765", "TUT-3628", "OHL-5890", "XYZ-6003"],
       "money": 0.0,
-      "username": "nowy_uzytkownik"
+      "username": getUsername()
     }
 
     const [visibleCUD, setVisibleCUD] = useState(false);
@@ -147,13 +154,13 @@ export default function Driver() {
                   <Accordion activeIndex={0}>
                     {platesWithState.map((plate, index) => (
                         plate.is_occupied ? (
-                            <AccordionTab 
+                            <AccordionTab
                                 header={
                                     <span className="flex align-items-center gap-2 w-full">
                                         <span className="font-bold white-space-nowrap">{plate.license_plate}</span>
                                         <img alt="ParkingOS" src={ParkingOSImage.src} style={navbar_img_style} className="mr-2"></img>
                                     </span>
-                                } 
+                                }
                                 key={index}
                             >
                                 <p className="m-0">
@@ -162,12 +169,12 @@ export default function Driver() {
                                 </p>
                             </AccordionTab>
                         ) : (
-                            <AccordionTab 
+                            <AccordionTab
                                 header={
                                     <span className="flex align-items-center gap-2 w-full">
                                         <span className="font-bold white-space-nowrap">{plate.license_plate}</span>
                                     </span>
-                                } 
+                                }
                                 key={index}
                             >
                                 <p className="m-0">
@@ -182,31 +189,31 @@ export default function Driver() {
 
                   </div>
                 </ScrollPanel>
-                
+
             </Card>
           </div>
 
-          
-        
-          <CreateUpdateDialog 
-                visible={visibleCUD} 
-                onHide={() => setVisibleCUD(false)} 
+
+
+          <CreateUpdateDialog
+                visible={visibleCUD}
+                onHide={() => setVisibleCUD(false)}
                 oldLicensePlate={selectedLicensePlate}
             />
 
-          <AddMoneyDialog 
-                visible={visibleAM} 
+          <AddMoneyDialog
+                visible={visibleAM}
                 onHide={() => setVisibleAM(false)}
             />
 
-          <ShowTicketDialog 
-                visible={visibleST} 
+          <ShowTicketDialog
+                visible={visibleST}
                 onHide={() => setVisibleST(false)}
                 licensePlate={selectedLicensePlate}
             />
 
-          <ParkDialog 
-              visible={visibleP} 
+          <ParkDialog
+              visible={visibleP}
               onHide={() => setVisibleP(false)}
               licensePlate={selectedLicensePlate}
           />
@@ -215,7 +222,7 @@ export default function Driver() {
 
         </div>
 
-      
+
     );
 }
 
