@@ -1,22 +1,15 @@
 'use client'
 
 import React, { useRef } from 'react';
-import Navbar from '../../../components/Navbar';
+import Navbar from '../../components/Navbar';
 import axios from 'axios';
 import { Card } from 'primereact/card';
-import { SERVER_ADDRESS, CLIENT_ADDRESS } from '../../../../utils/Links'
+import { SERVER_ADDRESS, CLIENT_ADDRESS } from '../../../utils/Links'
 import { Toast } from 'primereact/toast';
 import { Formik, Field, Form } from 'formik';
 
 export default function Driver() {
     const toast = useRef(null);
-
-    const dummyUserData = {
-        "_id": "a61f338f-5651-47cf-ae44-5eee67b825cc",
-        "license_plates": ["VFK-8994", "RWM-9308", "GVU-1723", "NAP-0519", "YIU-5170", "ZRH-3452", "BTD-4765", "TUT-3628", "OHL-5890", "XYZ-6003"],
-        "money": 0.0,
-        "username": "nowy_uzytkownik"
-      }
 
     function validate(values){
         if(values.new_password_0 !== values.new_password_1){
@@ -29,7 +22,7 @@ export default function Driver() {
           toast.current.show({ severity: 'error', summary: 'Błąd', detail: "nowe haslo powinno miec conajmniej 8 znaków", life: 3000 });
         }
         else{
-            axios.post(`${SERVER_ADDRESS}/user/${dummyUserData._id}/change_password`, values)
+            axios.post(`${SERVER_ADDRESS}/user/change_password`, values)
           .then(response => {
             console.log(response.data);
             window.location.href = `${CLIENT_ADDRESS}/`;

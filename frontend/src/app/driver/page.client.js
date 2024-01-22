@@ -5,6 +5,7 @@ import Navbar from '../../components/Navbar';
 import CreateUpdateDialog from '../../components/CreateUpdateDialog';
 import ShowTicketDialog from '../../components/ShowTicketDialog';
 import AddMoneyDialog from '../../components/AddMoneyDialog';
+import ParkDialog from '../../components/ParkDialog';
 import ParkingOSImage from "../../../public/ParkingOS_icon.png";
 import axios from 'axios';
 import { Card } from 'primereact/card';
@@ -28,13 +29,14 @@ export default function Driver() {
     const [visibleCUD, setVisibleCUD] = useState(false);
     const [visibleAM, setVisibleAM] = useState(false);
     const [visibleST, setVisibleST] = useState(false);
+    const [visibleP, setVisibleP] = useState(false);
     const [selectedLicensePlate, setSelectedLicensePlate] = useState(null);
 
     const toast = useRef(null);
 
     // First request: Fetch plates
     useEffect(() => {
-        axios.get(`${SERVER_ADDRESS}/user/${dummyUserData._id}/license_plates`)
+        axios.get(`${SERVER_ADDRESS}/user/license_plates`)
           .then(response => {
             console.log(response.data);
             setPlates(response.data.license_plates)
@@ -54,11 +56,11 @@ export default function Driver() {
 
       const fetchDataForPlate = async (plate) => {
           try {
-              const response = await axios.get(`${SERVER_ADDRESS}/find_license_plate/${plate}`);
+              const response = await axios.get(`${SERVER_ADDRESS}/parking/check_plate/${plate}`);
               console.log(response.data);
               return {
                   "license_plate": plate,
-                  "is_occupied": response.data.state
+                  "is_occupied": response.status == 200 ? 1 : 0
               };
           } catch (error) {
               console.error('Error fetching data 2:', error);
@@ -84,18 +86,27 @@ export default function Driver() {
         </>
     );
 
+    // Show edit dialog
     function edit(selectedLicensePlate){
         setSelectedLicensePlate(selectedLicensePlate);
         setVisibleCUD(true)
     }
 
+    // Show ticket dialog
     function show(selectedLicensePlate){
       setSelectedLicensePlate(selectedLicensePlate);
       setVisibleST(true)
     }
 
+    // Show parking dialog
+    function park(selectedLicensePlate){
+      setSelectedLicensePlate(selectedLicensePlate);
+      setVisibleP(true)
+    }
+
+    // remove license plate from system
     function remove(selectedLicensePlate){
-      axios.post(`${SERVER_ADDRESS}/user/${dummyUserData._id}/license_plate`, {"license_plate": selectedLicensePlate})
+      axios.delete(`${SERVER_ADDRESS}/user/license_plate`, {"license_plate": selectedLicensePlate})
       .then(response => {
         console.log(response.data);
         toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(response.data)}`, life: 3000 });
@@ -107,12 +118,8 @@ export default function Driver() {
       reload(3000);
     }
 
-    function updateLicensePlateStatus(is_occupied){
-      const request = {
-        "license_plate": selectedLicensePlate,
-        "is_occupied": is_occupied
-      } 
-      axios.post(`${SERVER_ADDRESS}/user/${dummyUserData._id}/license_plate_status`, request)
+    function unpark(selectedLicensePlate){
+      axios.post(`${SERVER_ADDRESS}/parking/unpark/${selectedLicensePlate}`)
       .then(response => {
         console.log(response.data);
         toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(response.data)}`, life: 3000 });
@@ -151,7 +158,7 @@ export default function Driver() {
                             >
                                 <p className="m-0">
                                     <Button label="Bilet" onClick={() => show(plate.license_plate)}/>
-                                    <Button label="Wyjedź" style={{ marginLeft: '0.5em' }} onClick={() => updateLicensePlateStatus(0)}/>
+                                    <Button label="Wyjedź" style={{ marginLeft: '0.5em' }} onClick={() => unpark(plate.license_plate)}/>
                                 </p>
                             </AccordionTab>
                         ) : (
@@ -165,7 +172,7 @@ export default function Driver() {
                             >
                                 <p className="m-0">
                                     <Button label="Edytuj" onClick={() => edit(plate.license_plate)}/>
-                                    <Button label="Zaparkuj" style={{ marginLeft: '0.5em' }} onClick={() => updateLicensePlateStatus(1)}/>
+                                    <Button label="Zaparkuj" style={{ marginLeft: '0.5em' }} onClick={() => park(plate.license_plate)}/>
                                     <Button label="Usuń" style={{ marginLeft: '0.5em' }} onClick={() => remove(plate.license_plate)} />
                                 </p>
                             </AccordionTab>
@@ -197,6 +204,12 @@ export default function Driver() {
                 onHide={() => setVisibleST(false)}
                 licensePlate={selectedLicensePlate}
             />
+
+          <ParkDialog 
+              visible={visibleP} 
+              onHide={() => setVisibleP(false)}
+              licensePlate={selectedLicensePlate}
+          />
 
           <Toast ref={toast} />
 

@@ -9,15 +9,8 @@ import reload from '../../utils/Reload'
 const AddMoneyDialog = ({ visible, onHide }) => {
     const toast = useRef(null);
 
-    const dummyUserData = {
-        "_id": "a61f338f-5651-47cf-ae44-5eee67b825cc",
-        "license_plates": ["VFK-8994", "RWM-9308", "GVU-1723", "NAP-0519", "YIU-5170", "ZRH-3452", "BTD-4765", "TUT-3628", "OHL-5890", "XYZ-6003"],
-        "money": 0.0,
-        "username": "nowy_uzytkownik"
-      }
-
     const accept = (values) => {
-        axios.put(`${SERVER_ADDRESS}/user/${dummyUserData._id}/add_money`, values)
+        axios.put(`${SERVER_ADDRESS}/user/add_money`, values)
           .then(response => {
             console.log(response.data);
             toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(values)}`, life: 3000 });
