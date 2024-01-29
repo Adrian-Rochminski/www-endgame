@@ -13,20 +13,26 @@ import { Toast } from 'primereact/toast';
 import reload from '../../../utils/Reload'
 import dummyParkingsData2 from '../../dummyData/dummyParkingsData2.json';
 
-export default function Owner() {
+export const Owner = (session) => {
     const [parkings, setParkings] = useState([]);
     const dummyUserData = {
       "_id": "a61f338f-5651-47cf-ae44-5eee67b825cc",
-      "username": "owner_user"
+      "username": session.user
     }
     const [visibleCUPD, setVisibleCUPD] = useState(false);
     const [selectedParking, setSelectedParking] = useState(null);
 
     const toast = useRef(null);
 
+    let authHeader = {
+        headers: {
+            Authorization: "Bearer " + session.token.token
+        }
+    }
+
     // First request: Fetch parkings
     useEffect(() => {
-        axios.get(`${SERVER_ADDRESS}/parking/parkings`)
+        axios.get(`${SERVER_ADDRESS}/parking/parkings`, authHeader)
           .then(response => {
             console.log(response.data);
             setParkings(response.data)
@@ -56,7 +62,12 @@ export default function Owner() {
 
     // remove parking from system
     function remove(selectedParking){
-      axios.delete(`${SERVER_ADDRESS}/parking/parking`, {"parking_id": selectedParking._id})
+      axios.delete(`${SERVER_ADDRESS}/parking/parking`, {
+          headers: {
+              Authorization: "Bearer " + session.token.token,
+              parking_id: selectedParking._id
+          }
+      })
       .then(response => {
         console.log(response.data);
         toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(response.data)}`, life: 3000 });
@@ -108,6 +119,7 @@ export default function Owner() {
                 visible={visibleCUPD} 
                 onHide={() => setVisibleCUPD(false)} 
                 oldParking={selectedParking}
+                token={session.token.token}
             />
 
           <Toast ref={toast} />

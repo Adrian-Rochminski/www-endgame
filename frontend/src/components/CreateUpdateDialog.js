@@ -6,16 +6,22 @@ import axios from 'axios';
 import { SERVER_ADDRESS } from '../../utils/Links'
 import reload from '../../utils/Reload'
 
-const CreateUpdateDialog = ({ visible, onHide, oldLicensePlate }) => {
+const CreateUpdateDialog = ({ visible, onHide, oldLicensePlate, token }) => {
 
 
     console.log(oldLicensePlate);
     const toast = useRef(null);
 
     const accept = (values) => {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        };
+
         (oldLicensePlate ? 
-            axios.post(`${SERVER_ADDRESS}/user/update_license_plate`, values) : 
-            axios.put(`${SERVER_ADDRESS}/user/license_plate`, values)
+            axios.post(`${SERVER_ADDRESS}/user/update_license_plate`, values, config) :
+            axios.put(`${SERVER_ADDRESS}/user/license_plate`, values, config)
         )
           .then(response => {
             console.log(response.data);

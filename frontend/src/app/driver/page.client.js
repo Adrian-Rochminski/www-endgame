@@ -204,23 +204,27 @@ export const Driver = (session) => {
                 visible={visibleCUD}
                 onHide={() => setVisibleCUD(false)}
                 oldLicensePlate={selectedLicensePlate}
+                token={session.token.token}
             />
 
           <AddMoneyDialog
                 visible={visibleAM}
                 onHide={() => setVisibleAM(false)}
+                token={session.token.token}
             />
 
           <ShowTicketDialog
                 visible={visibleST}
                 onHide={() => setVisibleST(false)}
                 licensePlate={selectedLicensePlate}
+                token={session.token.token}
             />
 
           <ParkDialog
               visible={visibleP}
               onHide={() => setVisibleP(false)}
               licensePlate={selectedLicensePlate}
+              token={session.token.token}
           />
 
           <Toast ref={toast} />

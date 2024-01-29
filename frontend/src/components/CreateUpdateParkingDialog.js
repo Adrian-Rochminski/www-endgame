@@ -6,14 +6,20 @@ import axios from 'axios';
 import { SERVER_ADDRESS } from '../../utils/Links'
 import reload from '../../utils/Reload'
 
-const CreateUpdatParkingDialog = ({ visible, onHide, oldParking }) => {
+const CreateUpdatParkingDialog = ({ visible, onHide, oldParking, token }) => {
 
     const toast = useRef(null);
 
+    const config = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    };
+
     const accept = (values) => {
         (oldParking ? 
-            axios.put(`${SERVER_ADDRESS}/parking/update`, values) : 
-            axios.post(`${SERVER_ADDRESS}/parking/make`, values)
+            axios.put(`${SERVER_ADDRESS}/parking/update`, values, config) :
+            axios.post(`${SERVER_ADDRESS}/parking/make`, values, config)
         )
           .then(response => {
             console.log(response.data);

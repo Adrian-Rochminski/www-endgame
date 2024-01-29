@@ -4,7 +4,7 @@ import axios from 'axios';
 import { SERVER_ADDRESS } from '../../utils/Links'
 import QRCode from 'qrcode.react';
 
-const ShowTicketDialog = ({ visible, onHide, licensePlate }) => {
+const ShowTicketDialog = ({ visible, onHide, licensePlate, token }) => {
 
     const [plateDetails, setPlateDetails] = useState(null);
 
@@ -15,7 +15,13 @@ const ShowTicketDialog = ({ visible, onHide, licensePlate }) => {
       }
 
       useEffect(() => {
-        axios.post(`${SERVER_ADDRESS}/user/license_plate_details`, licensePlate)
+          const config = {
+              headers: {
+                  Authorization: `Bearer ${token}`
+              }
+          };
+
+          axios.post(`${SERVER_ADDRESS}/user/license_plate_details`, licensePlate, config)
           .then(response => {
             console.log(response.data);
             setPlateDetails(response.data);

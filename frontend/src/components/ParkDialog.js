@@ -12,13 +12,20 @@ import reload from '../../utils/Reload'
 
 import dummyParkingsData from '../dummyData/dummyParkingsData.json';
 
-const ParkDialog = ({ visible, onHide, licensePlate }) => {
+const ParkDialog = ({ visible, onHide, licensePlate, token }) => {
     const toast = useRef(null);
     const [parkings, setParkings] = useState([]);
 
+    const config = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    };
+
     // Get list of existing parkings
     useEffect(() => {
-        axios.get(`${SERVER_ADDRESS}/parking/parkings`)
+
+        axios.get(`${SERVER_ADDRESS}/parking/parkings`, config)
           .then(response => {
             console.log(response.data);
             setParkings(response.data)
@@ -76,7 +83,7 @@ const ParkDialog = ({ visible, onHide, licensePlate }) => {
             "plate": {licensePlate},
             "parking_id": {parking_id}
         }
-        axios.put(`${SERVER_ADDRESS}/parking/park`, request)
+        axios.put(`${SERVER_ADDRESS}/parking/park`, request, config)
           .then(response => {
             console.log(response.data);
             toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(request)}`, life: 3000 });

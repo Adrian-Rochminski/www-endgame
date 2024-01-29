@@ -6,11 +6,17 @@ import axios from 'axios';
 import { SERVER_ADDRESS } from '../../utils/Links'
 import reload from '../../utils/Reload'
 
-const AddMoneyDialog = ({ visible, onHide }) => {
+const AddMoneyDialog = ({ visible, onHide, token }) => {
     const toast = useRef(null);
 
     const accept = (values) => {
-        axios.put(`${SERVER_ADDRESS}/user/add_money`, values)
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        };
+
+        axios.put(`${SERVER_ADDRESS}/user/add_money`, values, config)
           .then(response => {
             console.log(response.data);
             toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(values)}`, life: 3000 });
