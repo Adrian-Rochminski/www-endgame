@@ -8,10 +8,6 @@ export const authOptions = {
         //signOut: '/auth/signout',
     },
 
-    session: {
-        strategy: 'jwt'
-    },
-
     providers: [
         CredentialsProvider({
             credentials: {
@@ -26,9 +22,12 @@ export const authOptions = {
                         'Content-Type': 'application/json',
                     },
                 });
-                const user = res.data;
-                if (res.status === 200 && user) {
-                    return user;
+                const data = res.data;
+                if (res.status === 200 && data) {
+                    return {
+                        token: data.token,
+                        user: data.username
+                    };
                 } else {
                     return null;
                 }
@@ -37,20 +36,17 @@ export const authOptions = {
     ],
 
     callbacks: {
-        async jwt({token, user}){
-            console.log('JWT Callback:', {token, user});
+        async jwt({ token, user }) {
             if (user) {
-                token.accessToken = user.token
-                token.username = user.username
+                token.user = user.user;
+                token.token = user.token;
             }
-            return token
+            return token;
         },
-        async session({ session, token, user }) {
-            console.log('Session Callback:', { session, token, user });
-            session.accessToken = token.accessToken
-            user.accessToken = token.accessToken
-            user.username = token.username
-            return session
-        }
+        async session({ session, token }) {
+            session.user = token.user;
+            session.token = token;
+            return session;
+        },
     },
 }

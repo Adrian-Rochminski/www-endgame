@@ -12,13 +12,6 @@ export default async function Home() {
         <div className="block">
             <p className="text-6xl w-10">ParkingOS</p>
             {authorized ?
-                <>
-                    <a>authenticated</a>
-                    <pre>{JSON.stringify(session, null, 2)}</pre>
-                </> :
-                <a>unauthenticated</a>
-            }
-            {authorized ?
                 <div>
                     <Button onClick={() => signOut()}>Wyloguj się</Button>
                 </div> :

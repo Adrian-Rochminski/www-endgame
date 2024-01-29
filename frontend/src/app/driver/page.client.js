@@ -15,22 +15,15 @@ import { ScrollPanel } from 'primereact/scrollpanel';
 import { SERVER_ADDRESS } from '../../../utils/Links'
 import { Toast } from 'primereact/toast';
 import reload from '../../../utils/Reload'
-import {getSession} from "next-auth/react";
 
-export default function Driver() {
-    async function getUsername() {
-        let session = await getSession();
-        console.log('Session: ', session);
-        return "nowy_uzytkownik";
-    }
-
+export const Driver = (session) => {
     const [plates, setPlates] = useState([]);
     const [platesWithState, setPlatesWithState] = useState([]);
     const dummyUserData = {
       "_id": "a61f338f-5651-47cf-ae44-5eee67b825cc",
       "license_plates": ["VFK-8994", "RWM-9308", "GVU-1723", "NAP-0519", "YIU-5170", "ZRH-3452", "BTD-4765", "TUT-3628", "OHL-5890", "XYZ-6003"],
       "money": 0.0,
-      "username": getUsername()
+      "username": session.user
     }
 
     const [visibleCUD, setVisibleCUD] = useState(false);
@@ -41,9 +34,16 @@ export default function Driver() {
 
     const toast = useRef(null);
 
+    let authHeader = {
+        headers: {
+            Authorization: "Bearer " + session.token.token
+        }
+    }
+
+
     // First request: Fetch plates
     useEffect(() => {
-        axios.get(`${SERVER_ADDRESS}/user/license_plates`)
+        axios.get(`${SERVER_ADDRESS}/user/license_plates`, authHeader)
           .then(response => {
             console.log(response.data);
             setPlates(response.data.license_plates)
@@ -63,11 +63,11 @@ export default function Driver() {
 
       const fetchDataForPlate = async (plate) => {
           try {
-              const response = await axios.get(`${SERVER_ADDRESS}/parking/check_plate/${plate}`);
+              const response = await axios.get(`${SERVER_ADDRESS}/parking/check_plate/${plate}`, authHeader);
               console.log(response.data);
               return {
                   "license_plate": plate,
-                  "is_occupied": response.status == 200 ? 1 : 0
+                  "is_occupied": response.status === 200 ? 1 : 0
               };
           } catch (error) {
               console.error('Error fetching data 2:', error);
@@ -85,7 +85,7 @@ export default function Driver() {
 
       fetchAllData();
   }, [plates]); // Run when `plates` changes
-  if (!platesWithState || plates.length != platesWithState.length) { return <p>Waiting for plates state ...</p>; }
+  if (!platesWithState || plates.length !== platesWithState.length) { return <p>Waiting for plates state ...</p>; }
 
     const footer = (
         <>
@@ -113,7 +113,12 @@ export default function Driver() {
 
     // remove license plate from system
     function remove(selectedLicensePlate){
-      axios.delete(`${SERVER_ADDRESS}/user/license_plate`, {"license_plate": selectedLicensePlate})
+      axios.delete(`${SERVER_ADDRESS}/user/license_plate`, {
+          headers: {
+              Authorization: "Bearer " + session.token.token,
+              license_plate: selectedLicensePlate
+          }
+      })
       .then(response => {
         console.log(response.data);
         toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(response.data)}`, life: 3000 });
@@ -126,7 +131,7 @@ export default function Driver() {
     }
 
     function unpark(selectedLicensePlate){
-      axios.post(`${SERVER_ADDRESS}/parking/unpark/${selectedLicensePlate}`)
+      axios.post(`${SERVER_ADDRESS}/parking/unpark/${selectedLicensePlate}`, authHeader)
       .then(response => {
         console.log(response.data);
         toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(response.data)}`, life: 3000 });

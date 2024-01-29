@@ -1,2 +1,2 @@
-export const SERVER_ADDRESS = process.env.BACKEND_URL
-export const CLIENT_ADDRESS = process.env.NEXTAUTH_URL
+export const SERVER_ADDRESS = "https://www-project.onrender.com/"
+export const CLIENT_ADDRESS = "http://localhost:3000"
