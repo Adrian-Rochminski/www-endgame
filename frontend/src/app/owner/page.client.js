@@ -12,6 +12,7 @@ import { SERVER_ADDRESS } from '../../../utils/Links'
 import { Toast } from 'primereact/toast';
 import reload from '../../../utils/Reload'
 import dummyParkingsData2 from '../../dummyData/dummyParkingsData2.json';
+import { useRouter } from "next/navigation";
 
 export const Owner = (session) => {
     const [parkings, setParkings] = useState([]);
@@ -21,6 +22,7 @@ export const Owner = (session) => {
     }
     const [visibleCUPD, setVisibleCUPD] = useState(false);
     const [selectedParking, setSelectedParking] = useState(null);
+    const router = useRouter();
 
     const toast = useRef(null);
 
@@ -58,6 +60,7 @@ export const Owner = (session) => {
 
     function liveView(selectedParking){
       console.log(selectedParking);
+      router.push("/owner/live_view?data=" + JSON.stringify(selectedParking));
     }
 
     // remove parking from system
