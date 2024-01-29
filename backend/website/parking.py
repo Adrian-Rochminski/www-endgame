@@ -7,6 +7,11 @@ parking = Blueprint('parking', __name__)
 parking_collection = db['parkings']
 user_collection = db['users']
 
+@app.before_request
+def before_request():
+    headers = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' }
+    if request.method == 'OPTIONS' or request.method == 'options':
+        return jsonify(headers), 200
 
 def parse_str_to_time(time_str):
     return datetime.strptime(time_str, '%H:%M').time()
