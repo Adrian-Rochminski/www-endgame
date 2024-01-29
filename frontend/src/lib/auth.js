@@ -16,7 +16,7 @@ export const authOptions = {
             },
             async authorize (credentials) {
                 console.log('Authorizing...');
-                let url = SERVER_ADDRESS + 'login'
+                let url = SERVER_ADDRESS + '/login'
                 let res = await axios.post(url, credentials, {
                     headers: {
                         'Content-Type': 'application/json',

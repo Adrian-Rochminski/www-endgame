@@ -19,7 +19,7 @@ export default function Register() {
         },
         onSubmit: async (values) => {
             try {
-                const response = await axios.post(SERVER_ADDRESS + 'register', values);
+                const response = await axios.post(SERVER_ADDRESS + '/register', values);
                 console.log(response);
                 toast.current.show({ severity: 'success', summary: 'Success', detail: "Account created successfully", life: 3000 });
                 router.push('/auth/signin');
