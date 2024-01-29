@@ -10,6 +10,13 @@ users_collection = db['users']
 parkings_collection = db['parkings']
 
 
+@app.before_request
+def before_request():
+    headers = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' }
+    if request.method == 'OPTIONS' or request.method == 'options':
+        return jsonify(headers), 200
+
+
 @views.route('/register', methods=['POST'])
 @cross_origin()
 def register():
