@@ -9,7 +9,7 @@ import ParkDialog from '../../components/ParkDialog';
 import ParkingOSImage from "../../../public/ParkingOS_icon.png";
 import axios from 'axios';
 import { Card } from 'primereact/card';
-import { Button } from 'primereact/button';
+import { MyPrimaryButton, MySecondaryButton, MyCollapseButton } from '../../components/MyButtons';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { SERVER_ADDRESS } from '../../../utils/Links'
@@ -89,7 +89,7 @@ export const Driver = (session) => {
 
     const footer = (
         <>
-            <Button label="Dodaj nowy pojazd" onClick={() => edit(null)}/>
+            <MyPrimaryButton label="Dodaj nowy pojazd" onClick={() => edit(null)}/>
         </>
     );
 
@@ -151,8 +151,9 @@ export const Driver = (session) => {
                 <p className="m-0">Witaj: {dummyUserData.username}</p>
 
                 <p className="m-0">Twoje saldo: {dummyUserData.money}</p>
-                <Button label="Doładuj konto" onClick={() => setVisibleAM(true)}/>
-
+                <MySecondaryButton label="Doładuj konto" onClick={() => setVisibleAM(true)}/>
+                <br></br>
+                <br></br>
                 <p className="m-0">Twoje samochody:</p>
                 <ScrollPanel style={{ width: '400px', height: '300px' }}>
                   <div className="card">
@@ -169,8 +170,8 @@ export const Driver = (session) => {
                                 key={index}
                             >
                                 <p className="m-0">
-                                    <Button label="Bilet" onClick={() => show(plate.license_plate)}/>
-                                    <Button label="Wyjedź" style={{ marginLeft: '0.5em' }} onClick={() => unpark(plate.license_plate)}/>
+                                    <MyCollapseButton label="Bilet" onClick={() => show(plate.license_plate)}/>
+                                    <MyCollapseButton label="Wyjedź" onClick={() => unpark(plate.license_plate)}/>
                                 </p>
                             </AccordionTab>
                         ) : (
@@ -183,9 +184,9 @@ export const Driver = (session) => {
                                 key={index}
                             >
                                 <p className="m-0">
-                                    <Button label="Edytuj" onClick={() => edit(plate.license_plate)}/>
-                                    <Button label="Zaparkuj" style={{ marginLeft: '0.5em' }} onClick={() => park(plate.license_plate)}/>
-                                    <Button label="Usuń" style={{ marginLeft: '0.5em' }} onClick={() => remove(plate.license_plate)} />
+                                    <MyCollapseButton label="Edytuj" onClick={() => edit(plate.license_plate)}/>
+                                    <MyCollapseButton label="Zaparkuj" onClick={() => park(plate.license_plate)}/>
+                                    <MyCollapseButton label="Usuń" onClick={() => remove(plate.license_plate)} />
                                 </p>
                             </AccordionTab>
                         )

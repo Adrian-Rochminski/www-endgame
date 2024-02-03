@@ -5,7 +5,7 @@ import Navbar from '../../components/Navbar';
 import axios from 'axios';
 import CreateUpdateParkingDialog from '../../components/CreateUpdateParkingDialog';
 import { Card } from 'primereact/card';
-import { Button } from 'primereact/button';
+import { MyPrimaryButton, MyCollapseButton } from '../../components/MyButtons';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { SERVER_ADDRESS } from '../../../utils/Links'
@@ -48,7 +48,7 @@ export const Owner = (session) => {
 
     const footer = (
         <>
-            <Button label="Dodaj nowy parking" onClick={() => edit(null)}/>
+            <MyPrimaryButton label="Dodaj nowy parking" onClick={() => edit(null)}/>
         </>
     );
 
@@ -103,9 +103,9 @@ export const Owner = (session) => {
                             key={index}
                         >
                             <p className="m-0">
-                                    <Button label="Edytuj" onClick={() => edit(parking)}/>
-                                    <Button label="Usuń" style={{ marginLeft: '0.5em' }} onClick={() => remove(parking)} />
-                                    <Button label="Podgląd" style={{ marginLeft: '0.5em' }} onClick={() => liveView(parking)} />
+                                    <MyCollapseButton label="Edytuj" onClick={() => edit(parking)}/>
+                                    <MyCollapseButton label="Usuń" style={{ marginLeft: '0.5em' }} onClick={() => remove(parking)} />
+                                    <MyCollapseButton label="Podgląd" style={{ marginLeft: '0.5em' }} onClick={() => liveView(parking)} />
                                 </p>
                         </AccordionTab>
                     ))}

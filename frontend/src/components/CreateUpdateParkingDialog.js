@@ -5,6 +5,7 @@ import { Formik, Field, Form } from 'formik';
 import axios from 'axios';
 import { SERVER_ADDRESS } from '../../utils/Links'
 import reload from '../../utils/Reload'
+import { MyFormButton } from './MyButtons';
 
 const CreateUpdatParkingDialog = ({ visible, onHide, oldParking, token }) => {
 
@@ -127,8 +128,9 @@ const CreateUpdatParkingDialog = ({ visible, onHide, oldParking, token }) => {
                                         <Field id="rate_from_six_hours" name="rate_from_six_hours"/>
                                     </li>
 
+                                    <br></br>
                                     <li>
-                                        <button type="submit">Zatwierdź</button>
+                                        <MyFormButton name={"Zatwierdź"}/>
                                     </li>
 
                                 </ul>

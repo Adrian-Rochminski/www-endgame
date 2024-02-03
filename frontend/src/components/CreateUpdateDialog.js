@@ -5,6 +5,7 @@ import { Formik, Field, Form } from 'formik';
 import axios from 'axios';
 import { SERVER_ADDRESS } from '../../utils/Links'
 import reload from '../../utils/Reload'
+import { MyFormButton } from './MyButtons';
 
 const CreateUpdateDialog = ({ visible, onHide, oldLicensePlate, token }) => {
 
@@ -58,7 +59,7 @@ const CreateUpdateDialog = ({ visible, onHide, oldLicensePlate, token }) => {
                             <Form>
                                 <label htmlFor="license_plate">Numer rejestracyjny</label>
                                 <Field id="license_plate" name="license_plate" placeholder="STH-12345" />
-                                <button type="submit">Zatwierdź</button>
+                                <MyFormButton name={"Zatwierdź"}/>
                             </Form>
                         </Formik>
                     ):(
@@ -78,7 +79,7 @@ const CreateUpdateDialog = ({ visible, onHide, oldLicensePlate, token }) => {
                                 <Field id="old_license_plate" name="old_license_plate" placeholder={oldLicensePlate} disabled="true" />
                                 <label htmlFor="new_license_plate">Nowy numer rejestracyjny</label>
                                 <Field id="new_license_plate" name="new_license_plate" placeholder="STH-12345" />
-                                <button type="submit">Zatwierdź</button>
+                                <MyFormButton name={"Zatwierdź"}/>
                             </Form>
                         </Formik>
                     )}
