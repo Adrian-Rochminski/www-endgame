@@ -353,3 +353,12 @@ def search_parking():
         return jsonify(parking_list)
     else:
         return jsonify({"msg": "No parking found with given name"}), 404
+
+@parking.route("/<id>", methods=["GET"])
+@jwt_required()
+def get_parking(parking_id):
+    user_id = get_jwt_identity()
+    parking = parking_collection.find_one({"_id": parking_id})
+    if parking['owner'] == user_id:
+        return jsonify({"msg": "The parking does not belong to this account"}), 401
+    return jsonify(parking), 400
