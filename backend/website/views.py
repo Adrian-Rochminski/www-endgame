@@ -10,7 +10,7 @@ users_collection = db['users']
 parkings_collection = db['parkings']
 
 
-@app.before_request
+@views.before_request
 def before_request():
     headers = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' }
     if request.method == 'OPTIONS' or request.method == 'options':
@@ -108,6 +108,19 @@ def get_license_plates():
 
     if user:
         return jsonify({'license_plates': user.get('license_plates', [])}), 200
+    else:
+        return jsonify({'msg': 'User not found'}), 404
+
+
+@views.route('/user/money', methods=['GET'])
+@cross_origin()
+@jwt_required()
+def get_user_money():
+    user_id = get_jwt_identity()
+    user = users_collection.find_one({'_id': user_id}, {'money': 1, '_id': 0})
+
+    if user:
+        return jsonify({'money': user.get('money', 0)}), 200
     else:
         return jsonify({'msg': 'User not found'}), 404
 

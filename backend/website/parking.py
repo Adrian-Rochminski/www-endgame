@@ -7,7 +7,7 @@ parking = Blueprint('parking', __name__)
 parking_collection = db['parkings']
 user_collection = db['users']
 
-@app.before_request
+@parking.before_request
 def before_request():
     headers = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' }
     if request.method == 'OPTIONS' or request.method == 'options':
