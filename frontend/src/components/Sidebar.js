@@ -29,8 +29,6 @@ export default function MenuSidebar({ visible, onHide }) {
                 <p><b>Options</b></p>
                 <ol>
                     <br></br>
-                    <li><MySecondaryButton label="Zmień hasło" onClick={() => toPasswdChange()}/></li>
-                    <br></br>
                     <li><MyPrimaryButton label="Wyloguj" onClick={() => logout()}/></li>
                     <br></br>
                 </ol>
