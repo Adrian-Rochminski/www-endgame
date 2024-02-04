@@ -42,7 +42,7 @@ const AddMoneyDialog = ({ visible, onHide, token }) => {
                 <div>
                     <Formik
                         initialValues={{
-                            add_money: '',
+                            money: '',
                         }}
                         onSubmit={async (values) => {
                             await new Promise((r) => setTimeout(r, 500));
@@ -52,8 +52,8 @@ const AddMoneyDialog = ({ visible, onHide, token }) => {
                         >
                         <Form>
                             <MyFormView>
-                                <MyFormText htmlFor="add_money">kwota:</MyFormText>
-                                <MyFormField id="add_money" name="add_money" placeholder="20"/>
+                                <MyFormText htmlFor="money">kwota:</MyFormText>
+                                <MyFormField id="money" name="money" placeholder="20"/>
                             </MyFormView>
                             <MyFormButton name={"Zatwierdź"}/>
                         </Form>
