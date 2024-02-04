@@ -4,6 +4,7 @@ import { Sidebar } from 'primereact/sidebar';
 import { Button } from 'primereact/button';
 import axios from 'axios';
 import { SERVER_ADDRESS, CLIENT_ADDRESS } from '../../utils/Links'
+import { MyPrimaryButton, MySecondaryButton } from './MyButtons';
 
 export default function MenuSidebar({ visible, onHide }) {
 
@@ -25,10 +26,13 @@ export default function MenuSidebar({ visible, onHide }) {
     return (
         <div className="card flex justify-content-center">
             <Sidebar visible={visible} onHide={onHide} className="w-20rem md:w-20rem lg:w-30rem">
-                <h2>Options</h2>
+                <p><b>Options</b></p>
                 <ol>
-                    <li><Button label="Zmień hasło" severity="Warning" onClick={() => toPasswdChange()}/></li>
-                    <li><Button label="Wyloguj" severity="Danger" onClick={() => logout()}/></li>
+                    <br></br>
+                    <li><MySecondaryButton label="Zmień hasło" onClick={() => toPasswdChange()}/></li>
+                    <br></br>
+                    <li><MyPrimaryButton label="Wyloguj" onClick={() => logout()}/></li>
+                    <br></br>
                 </ol>
             </Sidebar>
         </div>
