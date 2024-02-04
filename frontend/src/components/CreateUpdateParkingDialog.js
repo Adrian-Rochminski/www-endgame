@@ -79,49 +79,49 @@ const CreateUpdatParkingDialog = ({ visible, onHide, oldParking, token }) => {
                                 
                                 <MyFormView>
                                     <MyFormText htmlFor="address">Adres:</MyFormText>
-                                    <MyFormField id="address" name="address"/>
+                                    <MyFormField id="address" name="address" placeholder="Łódź, Radwańska 37" type="text"/>
                                 </MyFormView>
 
                                 <MyFormView>
                                     <MyFormText htmlFor="floors">Piętra:</MyFormText>
-                                    <MyFormField id="floors" name="floors"/>
+                                    <MyFormField id="floors" name="floors" placeholder="3" step="1" min="1" type="number"/>
                                 </MyFormView>
 
                                 <MyFormView>
                                     <MyFormText htmlFor="spots_per_floor">Miejsca na piętrach:</MyFormText>
-                                    <MyFormField id="spots_per_floor" name="spots_per_floor"/>
+                                    <MyFormField id="spots_per_floor" name="spots_per_floor" placeholder="10" step="1" min="1" type="number"/>
                                 </MyFormView>
 
                                 <MyFormView>
                                     <MyFormText htmlFor="day_rate">Taryfa 1:</MyFormText>
-                                    <MyFormField id="day_rate" name="day_rate"/>
+                                    <MyFormField id="day_rate" name="day_rate" placeholder="2.1" step="0.1" min="0.1" type="number"/>
                                 </MyFormView>
 
                                 <MyFormView>
                                     <MyFormText htmlFor="night_rate">Taryfa 2:</MyFormText>
-                                    <MyFormField id="night_rate" name="night_rate"/>
+                                    <MyFormField id="night_rate" name="night_rate" placeholder="4.2" step="0.1" min="0.1" type="number"/>
                                 </MyFormView>
 
                                 <MyFormView>
                                     <MyFormText htmlFor="day_time_start">Początek dnia:</MyFormText>
-                                    <MyFormField id="day_time_start" name="day_time_start"/>
+                                    <MyFormField id="day_time_start" name="day_time_start" placeholder="08:30" type="text"/>
                                 </MyFormView>
 
                                 <MyFormView>
                                     <MyFormText htmlFor="day_time_end">Koniec dnia:</MyFormText>
-                                    <MyFormField id="day_time_end" name="day_time_end"/>
+                                    <MyFormField id="day_time_end" name="day_time_end" placeholder="21:45" type="text"/>
                                 </MyFormView>
 
                                 <MyFormHeaderText>Opcje dodatkowe</MyFormHeaderText>
 
                                 <MyFormView>
                                     <MyFormText htmlFor="first_hour">Pierwsza godzina:</MyFormText>
-                                    <MyFormField id="first_hour" name="first_hour"/>
+                                    <MyFormField id="first_hour" name="first_hour" placeholder="3.1" step="0.1" min="0.1" type="number"/>
                                 </MyFormView>
 
                                 <MyFormView>
                                     <MyFormText htmlFor="rate_from_six_hours">Następne 6 godzin:</MyFormText>
-                                    <MyFormField id="rate_from_six_hours" name="rate_from_six_hours"/>
+                                    <MyFormField id="rate_from_six_hours" name="rate_from_six_hours" placeholder="0.2" step="0.1" min="0.1" type="number"/>
                                 </MyFormView>
 
                                 <MyFormButton name={"Zatwierdź"}/>

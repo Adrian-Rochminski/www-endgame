@@ -60,7 +60,7 @@ const CreateUpdateDialog = ({ visible, onHide, oldLicensePlate, token }) => {
                             <Form>
                                 <MyFormView>
                                     <MyFormText htmlFor="license_plate">Numer rejestracyjny:</MyFormText>
-                                    <MyFormField id="license_plate" name="license_plate" placeholder="STH-12345"/>
+                                    <MyFormField id="license_plate" name="license_plate" placeholder="STH-12345" type="text"/>
                                 </MyFormView>
                                 
                                 <MyFormButton name={"Zatwierdź"}/>
@@ -81,12 +81,12 @@ const CreateUpdateDialog = ({ visible, onHide, oldLicensePlate, token }) => {
                             <Form>
                                 <MyFormView>
                                     <MyFormText htmlFor="old_license_plate">Stary numer rejestracyjny:</MyFormText>
-                                    <MyFormField id="old_license_plate" name="old_license_plate" placeholder={oldLicensePlate} disabled="true"/>
+                                    <MyFormField id="old_license_plate" name="old_license_plate" placeholder={oldLicensePlate} disabled="true" type="text"/>
                                 </MyFormView>
 
                                 <MyFormView>
                                     <MyFormText htmlFor="new_license_plate">Nowy numer rejestracyjny:</MyFormText>
-                                    <MyFormField id="new_license_plate" name="new_license_plate" placeholder="STH-12345"/>
+                                    <MyFormField id="new_license_plate" name="new_license_plate" placeholder="STH-12345" type="text"/>
                                 </MyFormView>
 
                                 <MyFormButton name={"Zatwierdź"}/>

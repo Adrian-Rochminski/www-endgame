@@ -53,7 +53,7 @@ const AddMoneyDialog = ({ visible, onHide, token }) => {
                         <Form>
                             <MyFormView>
                                 <MyFormText htmlFor="money">kwota:</MyFormText>
-                                <MyFormField id="money" name="money" placeholder="20"/>
+                                <MyFormField id="money" name="money" placeholder="20" step="1" min="1" type="number"/>
                             </MyFormView>
                             <MyFormButton name={"Zatwierdź"}/>
                         </Form>
