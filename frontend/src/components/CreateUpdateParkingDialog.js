@@ -6,6 +6,7 @@ import axios from 'axios';
 import { SERVER_ADDRESS } from '../../utils/Links'
 import reload from '../../utils/Reload'
 import { MyFormButton } from './MyButtons';
+import { MyFormField, MyFormText, MyFormView, MyFormHeaderText } from './MyForms';
 
 const CreateUpdatParkingDialog = ({ visible, onHide, oldParking, token }) => {
 
@@ -74,66 +75,56 @@ const CreateUpdatParkingDialog = ({ visible, onHide, oldParking, token }) => {
                             }}
                             >
                             <Form>
-                                <ul>
-                                    <li>
-                                        <h5><b>Opcje podstawowe</b></h5>
-                                    </li>
+                                <MyFormHeaderText>Opcje podstawowe</MyFormHeaderText>
+                                
+                                <MyFormView>
+                                    <MyFormText htmlFor="address">Adres:</MyFormText>
+                                    <MyFormField id="address" name="address"/>
+                                </MyFormView>
 
-                                    <li>
-                                        <label htmlFor="address">Adres:</label>
-                                        <Field id="address" name="address"/>
-                                    </li>
-                                    
-                                    <li>
-                                        <label htmlFor="floors">Piętra:</label>
-                                        <Field id="floors" name="floors"/>
-                                    </li>
+                                <MyFormView>
+                                    <MyFormText htmlFor="floors">Piętra:</MyFormText>
+                                    <MyFormField id="floors" name="floors"/>
+                                </MyFormView>
 
-                                    <li>
-                                        <label htmlFor="spots_per_floor">Miejsca na piętrach:</label>
-                                        <Field id="spots_per_floor" name="spots_per_floor"/>
-                                    </li>
+                                <MyFormView>
+                                    <MyFormText htmlFor="spots_per_floor">Miejsca na piętrach:</MyFormText>
+                                    <MyFormField id="spots_per_floor" name="spots_per_floor"/>
+                                </MyFormView>
 
-                                    <li>
-                                        <label htmlFor="day_rate">Taryfa dzienna:</label>
-                                        <Field id="day_rate" name="day_rate"/>
-                                    </li>
+                                <MyFormView>
+                                    <MyFormText htmlFor="day_rate">Taryfa dzienna:</MyFormText>
+                                    <MyFormField id="day_rate" name="day_rate"/>
+                                </MyFormView>
 
-                                    <li>
-                                        <label htmlFor="night_rate">Taryfa nocna:</label>
-                                        <Field id="night_rate" name="night_rate"/>
-                                    </li>
+                                <MyFormView>
+                                    <MyFormText htmlFor="night_rate">Taryfa nocna:</MyFormText>
+                                    <MyFormField id="night_rate" name="night_rate"/>
+                                </MyFormView>
 
-                                    <li>
-                                        <label htmlFor="day_time_start">Początek dnia:</label>
-                                        <Field id="day_time_start" name="day_time_start"/>
-                                    </li>
+                                <MyFormView>
+                                    <MyFormText htmlFor="day_time_start">Początek dnia:</MyFormText>
+                                    <MyFormField id="day_time_start" name="day_time_start"/>
+                                </MyFormView>
 
-                                    <li>
-                                        <label htmlFor="day_time_end">Koniec dnia:</label>
-                                        <Field id="day_time_end" name="day_time_end"/>
-                                    </li>
+                                <MyFormView>
+                                    <MyFormText htmlFor="day_time_end">Koniec dnia:</MyFormText>
+                                    <MyFormField id="day_time_end" name="day_time_end"/>
+                                </MyFormView>
 
-                                    <li>
-                                        <h5><b>Opcje dodatkowe</b></h5>
-                                    </li>
+                                <MyFormHeaderText>Opcje dodatkowe</MyFormHeaderText>
 
-                                    <li>
-                                        <label htmlFor="first_hour">Pierwsza godzina:</label>
-                                        <Field id="first_hour" name="first_hour"/>
-                                    </li>
+                                <MyFormView>
+                                    <MyFormText htmlFor="first_hour">Pierwsza godzina:</MyFormText>
+                                    <MyFormField id="first_hour" name="first_hour"/>
+                                </MyFormView>
 
-                                    <li>
-                                        <label htmlFor="rate_from_six_hours">Następne 6 godzin:</label>
-                                        <Field id="rate_from_six_hours" name="rate_from_six_hours"/>
-                                    </li>
+                                <MyFormView>
+                                    <MyFormText htmlFor="rate_from_six_hours">Następne 6 godzin:</MyFormText>
+                                    <MyFormField id="rate_from_six_hours" name="rate_from_six_hours"/>
+                                </MyFormView>
 
-                                    <br></br>
-                                    <li>
-                                        <MyFormButton name={"Zatwierdź"}/>
-                                    </li>
-
-                                </ul>
+                                <MyFormButton name={"Zatwierdź"}/>
                             </Form>
                         </Formik>
                     

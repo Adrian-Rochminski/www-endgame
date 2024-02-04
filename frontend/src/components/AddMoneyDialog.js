@@ -6,6 +6,7 @@ import axios from 'axios';
 import { SERVER_ADDRESS } from '../../utils/Links'
 import reload from '../../utils/Reload'
 import { MyFormButton } from './MyButtons';
+import { MyFormField, MyFormText, MyFormView, MyFormHeaderText } from './MyForms';
 
 const AddMoneyDialog = ({ visible, onHide, token }) => {
     const toast = useRef(null);
@@ -50,8 +51,10 @@ const AddMoneyDialog = ({ visible, onHide, token }) => {
                         }}
                         >
                         <Form>
-                            <label htmlFor="add_money">kwota</label>
-                            <Field id="add_money" name="add_money" placeholder="20" />
+                            <MyFormView>
+                                <MyFormText htmlFor="add_money">kwota:</MyFormText>
+                                <MyFormField id="add_money" name="add_money" placeholder="20"/>
+                            </MyFormView>
                             <MyFormButton name={"Zatwierdź"}/>
                         </Form>
                     </Formik>

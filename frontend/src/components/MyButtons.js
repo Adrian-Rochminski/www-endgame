@@ -48,4 +48,5 @@ const formStyle = {
     padding: "5px",
     color: "white",
     borderRadius: "5px",
+    margin: "10px 0px 0px 0px",
 }
