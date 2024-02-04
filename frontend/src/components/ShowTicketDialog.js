@@ -9,9 +9,10 @@ const ShowTicketDialog = ({ visible, onHide, licensePlate, token }) => {
     const [plateDetails, setPlateDetails] = useState(null);
 
       const dummyPlateDetails = {
-        "location": "ul. Wółczańska 189, Łódź",
-        "end_date": "10:40 19.12.2023",
-        "license_plate": licensePlate
+        "license_plate": "STH-12345",
+        "address": "Łódź, Radwańska 30",
+        "floor": 0,
+        "spot": 0,
       }
 
       useEffect(() => {
@@ -20,8 +21,9 @@ const ShowTicketDialog = ({ visible, onHide, licensePlate, token }) => {
                   Authorization: `Bearer ${token}`
               }
           };
-
-          axios.post(`${SERVER_ADDRESS}/user/license_plate_details`, licensePlate, config)
+          
+          // Not implemented endpoint
+          axios.post(`${SERVER_ADDRESS}/user/license_plate_details/${licensePlate}`, config)
           .then(response => {
             console.log(response.data);
             setPlateDetails(response.data);
@@ -43,10 +45,12 @@ const ShowTicketDialog = ({ visible, onHide, licensePlate, token }) => {
                 icon="pi pi-exclamation-triangle" 
             >
                 <div>
-                    <p className="m-0">Parking: {plateDetails.location}</p>
-                    <p className="m-0">Data wyjazdu: {plateDetails.end_date}</p>
-                    <p className="m-0">Numer rejestracyjny: {plateDetails.license_plate}</p>
-                    <QRCode value={licensePlate} />
+                    <p className="m-0">Numer rejestracyjny: <b>{plateDetails.license_plate}</b></p>
+                    <p className="m-0">Parking: <b>{plateDetails.address}</b></p>
+                    <p className="m-0">Piętro: <b>{plateDetails.floor}</b></p>
+                    <p className="m-0">Miejsce: <b>{plateDetails.spot}</b></p>
+                    <br></br>
+                    <QRCode value={JSON.stringify(plateDetails)} size={250}/>
                 </div>
             </Dialog>
         </>
