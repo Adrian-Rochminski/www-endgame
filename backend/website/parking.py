@@ -2,6 +2,7 @@ import uuid
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from website import db
+from flask_cors import cross_origin
 from datetime import datetime, timedelta
 parking = Blueprint('parking', __name__)
 parking_collection = db['parkings']
@@ -32,6 +33,7 @@ def check_car_ownership(plate, user_id):
 
 
 @parking.route("/make", methods=["POST"])
+@cross_origin()
 @jwt_required()
 def create_parking():
     """
@@ -114,6 +116,7 @@ def create_parking():
 
 
 @parking.route("/check_plate/<plate>", methods=["GET"])
+@cross_origin()
 @jwt_required()
 def check_car_status(plate):
     user_id = get_jwt_identity()
@@ -128,6 +131,7 @@ def check_car_status(plate):
 
 
 @parking.route("/find_cheapest", methods=["GET"])
+@cross_origin()
 @jwt_required()
 def find_cheapest():
     parking_lots = parking_collection.find({})
@@ -160,6 +164,7 @@ def find_cheapest():
 
 
 @parking.route("/park", methods=["POST"])
+@cross_origin()
 @jwt_required()
 def park_the_car():
     required_params = {
@@ -236,6 +241,7 @@ def calculate_parking_fee(start_time, end_time, day_rate, night_rate, night_hour
 
 
 @parking.route("/estimate_parking_fee", methods=["POST"])
+@cross_origin()
 @jwt_required()
 def estimate_parking_fee():
     data = request.get_json()
@@ -261,6 +267,7 @@ def estimate_parking_fee():
 
 
 @parking.route("/unpark", methods=["POST"])
+@cross_origin()
 @jwt_required()
 def unpark_car():
     data = request.get_json()
@@ -324,6 +331,7 @@ def unpark_car():
 
 
 @parking.route("/parkings", methods=["GET"])
+@cross_origin()
 def get_all_parkings():
     parkings = parking_collection.find({})
     parking_list = [{"id": str(parking["_id"]), "address": parking["address"]} for parking in parkings]
@@ -331,6 +339,7 @@ def get_all_parkings():
 
 
 @parking.route("/search_parking", methods=["GET"])
+@cross_origin()
 def search_parking():
     parking_name = request.args.get('address')
 

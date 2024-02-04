@@ -154,3 +154,29 @@ def get_all_users():
         user['_id'] = str(user['_id'])
         users_list.append(user)
     return jsonify(users_list)
+
+@views.route('/add_money', methods=['PUT'])
+@cross_origin()
+@jwt_required()
+def add_money():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    if data is None and data.get('money') is None:
+        return jsonify({"msg": "Missing data"}), 400
+    added_money = data['money']
+    try:
+        added_money = float(added_money)
+    except ValueError:
+        return jsonify({"msg": "Invalid data"}), 400
+    if added_money < 0.0:
+        return jsonify({"msg": "Money cannot be negative"}), 400
+
+    user = users_collection.find_one({"_id": user_id})
+    balance = user['money']
+    balance += added_money
+
+    result = users_collection.update_one(
+        {'_id': user_id},
+        {'$set': {'money': balance}}
+    )
+    return jsonify({"msg": "Money added"}), 200

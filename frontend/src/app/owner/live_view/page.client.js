@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Navbar from '../../../components/Navbar';
 import axios from 'axios';
 import { Card } from 'primereact/card';
-import { Button } from 'primereact/button';
+import { MyPrimaryButton, MySecondaryButton } from '../../../components/MyButtons';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { SERVER_ADDRESS } from '../../../../utils/Links'
@@ -79,8 +79,8 @@ export default function LiveView() {
           <div className="card flex justify-content-center mt-10" style={card_style}>
               <Card title={"Parking: " + parking.address} subTitle="" className="md:w-75rem">
 
-                <Button label="Koszta" style={{ marginLeft: '0.5em' }} onClick={() => costs()}/>
-                <Button label="Statystyki" style={{ marginLeft: '0.5em' }} onClick={() => stats()}/>
+                <MyPrimaryButton label="Koszta" style={{ marginLeft: '0.5em' }} onClick={() => costs()}/>
+                <MySecondaryButton label="Statystyki" style={{ marginLeft: '0.5em' }} onClick={() => stats()}/>
 
                 <ScrollPanel style={{ width: '600px', height: '600px' }}>
                     <TabView scrollable>

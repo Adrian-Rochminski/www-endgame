@@ -9,6 +9,7 @@ import { Formik, Field, Form } from 'formik';
 import axios from 'axios';
 import { SERVER_ADDRESS } from '../../utils/Links'
 import reload from '../../utils/Reload'
+import { MyPrimaryButton } from './MyButtons';
 
 import dummyParkingsData from '../dummyData/dummyParkingsData.json';
 
@@ -126,8 +127,8 @@ const ParkDialog = ({ visible, onHide, licensePlate, token }) => {
                                     >
                                         <div>
                                             <h5><b>Dane podstawowe</b></h5>
-                                            <p>Taryfa dzienna: {parking.day_rate}</p>
-                                            <p>Taryfa nocna: {parking.night_rate}</p>
+                                            <p>Taryfa 1: {parking.day_rate}</p>
+                                            <p>Taryfa 2: {parking.night_rate}</p>
                                             <p>Początek dnia: {parking.day_time_start}</p>
                                             <p>Koniec dnia: {parking.day_time_end}</p>
                                             {parking.extra_rules && (
@@ -143,7 +144,7 @@ const ParkDialog = ({ visible, onHide, licensePlate, token }) => {
                                                     <p key={floor}>Piętro {floor} - Wolne: {stats.free}, Całość: {stats.total}</p>
                                                 ))}
                                             </div>
-                                            <Button label="Wybierz" onClick={() => select_parking(parking._id)} />
+                                            <MyPrimaryButton label="Wybierz" onClick={() => select_parking(parking._id)}/>
                                         </div>
                                     </AccordionTab>
                                 )
