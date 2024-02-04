@@ -8,13 +8,6 @@ const ShowTicketDialog = ({ visible, onHide, licensePlate, token }) => {
 
     const [plateDetails, setPlateDetails] = useState(null);
 
-      const dummyPlateDetails = {
-        "license_plate": "STH-12345",
-        "address": "Łódź, Radwańska 30",
-        "floor": 0,
-        "spot": 0,
-      }
-
       useEffect(() => {
           const config = {
               headers: {
@@ -30,7 +23,12 @@ const ShowTicketDialog = ({ visible, onHide, licensePlate, token }) => {
           })
           .catch(error => {
             console.error('Error fetching data 1:', error);
-            setPlateDetails(dummyPlateDetails);
+            setPlateDetails({
+                "license_plate": "Error ???",
+                "address": "Error ???",
+                "floor": Infinity,
+                "spot": Infinity,
+              });
           });
       }, [licensePlate]);
     if (!plateDetails) { return <p>Waiting for plate details ...</p>; }
