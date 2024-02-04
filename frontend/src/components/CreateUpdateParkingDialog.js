@@ -93,12 +93,12 @@ const CreateUpdatParkingDialog = ({ visible, onHide, oldParking, token }) => {
                                 </MyFormView>
 
                                 <MyFormView>
-                                    <MyFormText htmlFor="day_rate">Taryfa dzienna:</MyFormText>
+                                    <MyFormText htmlFor="day_rate">Taryfa 1:</MyFormText>
                                     <MyFormField id="day_rate" name="day_rate"/>
                                 </MyFormView>
 
                                 <MyFormView>
-                                    <MyFormText htmlFor="night_rate">Taryfa nocna:</MyFormText>
+                                    <MyFormText htmlFor="night_rate">Taryfa 2:</MyFormText>
                                     <MyFormField id="night_rate" name="night_rate"/>
                                 </MyFormView>
 

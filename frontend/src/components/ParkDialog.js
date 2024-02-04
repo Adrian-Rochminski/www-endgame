@@ -127,8 +127,8 @@ const ParkDialog = ({ visible, onHide, licensePlate, token }) => {
                                     >
                                         <div>
                                             <h5><b>Dane podstawowe</b></h5>
-                                            <p>Taryfa dzienna: {parking.day_rate}</p>
-                                            <p>Taryfa nocna: {parking.night_rate}</p>
+                                            <p>Taryfa 1: {parking.day_rate}</p>
+                                            <p>Taryfa 2: {parking.night_rate}</p>
                                             <p>Początek dnia: {parking.day_time_start}</p>
                                             <p>Koniec dnia: {parking.day_time_end}</p>
                                             {parking.extra_rules && (
