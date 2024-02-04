@@ -18,7 +18,7 @@ const AddMoneyDialog = ({ visible, onHide, token }) => {
             }
         };
 
-        axios.put(`${SERVER_ADDRESS}/user/add_money`, values, config)
+        axios.put(`${SERVER_ADDRESS}/add_money`, values, config)
           .then(response => {
             console.log(response.data);
             toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(values)}`, life: 3000 });
