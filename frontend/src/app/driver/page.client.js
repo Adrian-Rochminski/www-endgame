@@ -210,7 +210,7 @@ export const Driver = (session) => {
                       </div>
                     </>
                   ) : (
-                    <p>Cannot find any plates</p> // This is the message displayed when platesWithState is empty
+                    <p>Nie znaleziono żadnych pojazdów :(</p> // This is the message displayed when platesWithState is empty
                   )}
                 </ScrollPanel>
 

@@ -10,16 +10,11 @@ import { Accordion, AccordionTab } from 'primereact/accordion';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { SERVER_ADDRESS } from '../../../utils/Links'
 import { Toast } from 'primereact/toast';
-import reload from '../../../utils/Reload'
-import dummyParkingsData2 from '../../dummyData/dummyParkingsData2.json';
+import reload from '../../../utils/Reload';
 import { useRouter } from "next/navigation";
 
 export const Owner = (session) => {
     const [parkings, setParkings] = useState([]);
-    const dummyUserData = {
-      "_id": "a61f338f-5651-47cf-ae44-5eee67b825cc",
-      "username": session.user
-    }
     const [visibleCUPD, setVisibleCUPD] = useState(false);
     const [selectedParking, setSelectedParking] = useState(null);
     const router = useRouter();
@@ -40,11 +35,9 @@ export const Owner = (session) => {
             setParkings(response.data)
           })
           .catch(error => {
-            console.error('Error fetching data 1:', error);
-            setParkings(dummyParkingsData2)
+            console.error('Error fetching data:', error);
           });
       }, []);
-    if (!parkings) { return <p>Waiting for parkings ...</p>; }
 
     const footer = (
         <>
@@ -87,10 +80,12 @@ export const Owner = (session) => {
           <Navbar />
           <div className="card flex justify-content-center mt-10" style={card_style}>
             <Card title="Karta Właściciela" subTitle="" footer={footer} className="md:w-25rem">
-                <p className="m-0">Witaj: {dummyUserData.username}</p>
+                <p className="m-0">Witaj: {session.user}</p>
 
                 <p className="m-0">Twoje parkingi:</p>
                 <ScrollPanel style={{ width: '400px', height: '300px' }}>
+                {parkings && parkings.length > 0 ? (
+                    <>
                   <div className="card">
                   <Accordion activeIndex={0}>
                     {parkings.map((parking, index) => (
@@ -112,6 +107,10 @@ export const Owner = (session) => {
                 </Accordion>
 
                   </div>
+                  </>
+                  ) : (
+                    <p>Nie znaleziono żadnych parkingów :(</p> // This is the message displayed when parkings is empty
+                  )}
                 </ScrollPanel>
                 
             </Card>
