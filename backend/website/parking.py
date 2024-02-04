@@ -326,19 +326,19 @@ def unpark_car():
 @parking.route("/parkings", methods=["GET"])
 def get_all_parkings():
     parkings = parking_collection.find({})
-    parking_list = [{"id": str(parking["_id"]), "name": parking["name"]} for parking in parkings]
+    parking_list = [{"id": str(parking["_id"]), "address": parking["address"]} for parking in parkings]
     return jsonify(parking_list)
 
 
 @parking.route("/search_parking", methods=["GET"])
 def search_parking():
-    parking_name = request.args.get('name')
+    parking_name = request.args.get('address')
 
     if not parking_name:
-        return jsonify({"msg": "Parking name is required"}), 400
+        return jsonify({"msg": "Parking address is required"}), 400
 
-    parkings = parking_collection.find({"name": {"$regex": parking_name, "$options": "i"}})
-    parking_list = [{"id": str(parking["_id"]), "name": parking["name"]} for parking in parkings]
+    parkings = parking_collection.find({"address": {"$regex": parking_name, "$options": "i"}})
+    parking_list = [{"id": str(parking["_id"]), "address": parking["address"]} for parking in parkings]
 
     if parking_list:
         return jsonify(parking_list)
