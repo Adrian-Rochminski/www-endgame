@@ -125,7 +125,8 @@ def check_car_status(plate):
         return jsonify({"msg": "User does not have a car with given license plate"}), 400
 
     if has_car_parked(plate):
-        return jsonify({"msg": "The car is parked"}), 200
+        parking_lot = parking_collection.find_one({"current_usage": {"$elemMatch": {"car": plate}}})
+        return jsonify({"msg": "The car is parked", "parking_id": parking_lot['_id']}), 200
     else:
         return jsonify({"msg": "The car is not parked"}), 200
 
