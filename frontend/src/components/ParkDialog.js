@@ -5,13 +5,10 @@ import { Accordion, AccordionTab } from 'primereact/accordion';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
-import { Formik, Field, Form } from 'formik';
 import axios from 'axios';
 import { SERVER_ADDRESS } from '../../utils/Links'
 import reload from '../../utils/Reload'
 import { MyPrimaryButton } from './MyButtons';
-
-import dummyParkingsData from '../dummyData/dummyParkingsData.json';
 
 const ParkDialog = ({ visible, onHide, licensePlate, token }) => {
     const toast = useRef(null);
@@ -32,65 +29,25 @@ const ParkDialog = ({ visible, onHide, licensePlate, token }) => {
             setParkings(response.data)
           })
           .catch(error => {
-            console.error('Error fetching data 1:', error);
-            setParkings(dummyParkingsData)
+            console.error('Error fetching data:', error);
           });
       }, []);
     if (!parkings) { return <p>Waiting for parkings ...</p>; }
 
-    // Calculate capacity of parking
-    function calculateParkingStats(data) {
-        let totalPlacesPerFloor = {};
-        let freePlacesPerFloor = {};
-        data.spots.forEach(spot => {
-            let floor = spot.floor;
-            if (!totalPlacesPerFloor.hasOwnProperty(floor)) {
-                totalPlacesPerFloor[floor] = 0;
-                freePlacesPerFloor[floor] = 0;
-            }
-            totalPlacesPerFloor[floor]++;
-            if (spot.available) {
-                freePlacesPerFloor[floor]++;
-            }
-        });
-        let parkingStats = {};
-        for (let floor in totalPlacesPerFloor) {
-            parkingStats[floor] = {
-                free: freePlacesPerFloor[floor] || 0,
-                total: totalPlacesPerFloor[floor]
-            };
-        }
-        return parkingStats;
-    }
-
-    // Set appropriate color based on parking capacity
-    function getAccordionColor(stats) {
-        let free = 0
-        let total = 0
-        for (const [key, value] of Object.entries(stats)) {
-            free += value.free;
-            total += value.total;
-        }
-        const percentage = free / total * 100;
-        if (percentage > 50) return "green";
-        else if (percentage > 25) return "orange";
-        else if (percentage > 0) return "red"
-        else return "gray"
-    }
-
     // Parking request
     const select_parking = (parking_id) => {
         let request = {
-            "plate": {licensePlate},
-            "parking_id": {parking_id}
+            "plate": licensePlate,
+            "parking_id": parking_id
         }
-        axios.put(`${SERVER_ADDRESS}/parking/park`, request, config)
+        
+        axios.post(`${SERVER_ADDRESS}/parking/park`, request, config)
           .then(response => {
             console.log(response.data);
             toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(request)}`, life: 3000 });
           })
           .catch(error => {
-            console.error('Error fetching data 1:', error);
+            console.error('Error fetching data:', error);
             toast.current.show({ severity: 'error', summary: 'Błąd', detail: `${JSON.stringify(request)} - ${error}`, life: 3000 });
           });
           reload(3000);
@@ -111,19 +68,14 @@ const ParkDialog = ({ visible, onHide, licensePlate, token }) => {
                     <div className="card">
                         <Accordion>
                             {parkings.map((parking, index) => {
-
-                                const stats = calculateParkingStats(parking);
-                                const statsColor = getAccordionColor(stats);
-
                                 return(
                                     <AccordionTab 
                                         header={
-                                            <div style={{"color": statsColor}} className="flex align-items-center gap-2 w-full">
+                                            <div className="flex align-items-center gap-2 w-full">
                                                 <span className="font-bold white-space-nowrap">{parking.address}</span>
                                             </div>
                                         } 
                                         key={parking._id}
-                                        disabled={statsColor == "gray"}
                                     >
                                         <div>
                                             <h5><b>Dane podstawowe</b></h5>
@@ -138,13 +90,7 @@ const ParkDialog = ({ visible, onHide, licensePlate, token }) => {
                                                     <p>Następne 6 godzin: {parking.extra_rules.rate_from_six_hours}</p>
                                                 </>
                                             )}
-                                            <div>
-                                                <h5><b>Statystyki</b></h5>
-                                                {Object.entries(stats).map(([floor, stats]) => (
-                                                    <p key={floor}>Piętro {floor} - Wolne: {stats.free}, Całość: {stats.total}</p>
-                                                ))}
-                                            </div>
-                                            <MyPrimaryButton label="Wybierz" onClick={() => select_parking(parking._id)}/>
+                                            <MyPrimaryButton label="Wybierz" onClick={() => select_parking(parking.id)}/>
                                         </div>
                                     </AccordionTab>
                                 )
