@@ -354,7 +354,7 @@ def search_parking():
     else:
         return jsonify({"msg": "No parking found with given name"}), 404
 
-@parking.route("/<id>", methods=["GET"])
+@parking.route("/parking_details/<id>", methods=["GET"])
 @jwt_required()
 def get_parking(parking_id):
     user_id = get_jwt_identity()
