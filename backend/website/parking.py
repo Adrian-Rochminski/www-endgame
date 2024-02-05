@@ -203,7 +203,7 @@ def park_the_car():
                 "floor": spot['floor'],
                 "spot": spot['spot'],
                 "car": plate,
-                "start_time": parse_time_to_str(current_time),
+                "start_time": current_time,
                 "end_time": None
             }
 
@@ -222,16 +222,16 @@ def calculate_parking_fee(start_time, end_time, day_rate, night_rate, night_hour
 
     while current_time < end_time:
         if night_hours['from'] <= current_time.time() < night_hours['to']:
-            next_time = datetime.combine(current_time.date(), datetime.strptime(night_hours['to'], "%H:%M").time())
+            next_time = datetime.combine(current_time.date(), night_hours['to'])
             hours = (min(end_time, next_time) - current_time).total_seconds() / 3600
             total_fee += hours * night_rate
         else:
-            if current_time.time() >= datetime.strptime(night_hours['to'], "%H:%M").time():
+            if current_time.time() >= night_hours['to']:
                 next_time = datetime.combine(current_time.date() + timedelta(days=1),
-                                             datetime.strptime(night_hours['from'], "%H:%M").time())
+                                             night_hours['from'])
             else:
                 next_time = datetime.combine(current_time.date(),
-                                             datetime.strptime(night_hours['from'], "%H:%M").time())
+                                             night_hours['from'])
             hours = (min(end_time, next_time) - current_time).total_seconds() / 3600
             total_fee += hours * day_rate
 
@@ -272,11 +272,11 @@ def estimate_parking_fee():
 def unpark_car():
     data = request.get_json()
     plate = data['plate']
-    parking_id = data['parking_id']
 
     user_id = get_jwt_identity()
     user = user_collection.find_one({"_id": user_id})
-    parking_lot = parking_collection.find_one({"_id": parking_id})
+    parking_lot = parking_collection.find_one({"current_usage": {"$elemMatch": {"car": plate}}})
+    parking_id = parking_lot['_id']
 
     if not parking_lot:
         return jsonify({"msg": "Parking not found"}), 404
@@ -288,10 +288,10 @@ def unpark_car():
             fee = calculate_parking_fee(
                 start_time, end_time,
                 parking_lot['day_rate'], parking_lot['night_rate'],
-                {'from': parking_lot['night_hours']['from'], 'to': parking_lot['night_hours']['to']}
+                {'from': parse_str_to_time(parking_lot['day_time_end']), 'to': parse_str_to_time(parking_lot['day_time_start'])}
             )
 
-            if user['money'] < fee:
+            if float(user['money'].to_decimal()) < fee:
                 return jsonify({"msg": "Insufficient funds"}), 400
 
             user_collection.update_one(
@@ -304,10 +304,12 @@ def unpark_car():
                 {"$pull": {"current_usage": {"car": plate}}}
             )
 
+            occupied_spot = usage['spot']
+            occupied_floor = usage['floor']
+
             for spot in parking_lot['spots']:
-                if spot['car'] == plate:
+                if spot['floor'] == occupied_floor and spot['spot'] == occupied_spot:
                     spot['available'] = True
-                    spot['car'] = None
                     parking_collection.update_one(
                         {"_id": parking_id},
                         {"$set": {"spots": parking_lot['spots']}}
