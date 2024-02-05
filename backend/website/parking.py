@@ -327,6 +327,8 @@ def unpark_car():
                 "license_plate": plate,
                 "start_date": start_time,
                 "end_date": end_time,
+                "floor": occupied_floor,
+                "spot": occupied_spot,
                 "paid": fee
             }
             parking_collection.update_one(
