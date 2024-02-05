@@ -342,9 +342,12 @@ def unpark_car():
 @parking.route("/parkings", methods=["GET"])
 @cross_origin()
 def get_all_parkings():
-    parkings = parking_collection.find({})
-    parking_list = [{"id": str(parking["_id"]), "address": parking["address"]} for parking in parkings]
-    return jsonify(parking_list)
+    parkings = list(parking_collection.find({}))
+    for p in parkings:
+        p.pop('current_usage')
+        p.pop('history')
+
+    return jsonify(parkings), 200
 
 
 @parking.route("/search_parking", methods=["GET"])
