@@ -40,7 +40,7 @@ export default function SignIn() {
 
     return (
         <div style={style}>
-            <Navbar />
+            <Navbar showMenuBtn={false}/>
             <div className="card flex justify-content-center mt-10" style={card_style}>
                 <Card title="Logowanie" subTitle="" className="md:w-25rem">
             <Toast ref={toast} />

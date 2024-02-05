@@ -18,7 +18,7 @@ const AddMoneyDialog = ({ visible, onHide, token }) => {
             }
         };
 
-        axios.put(`${SERVER_ADDRESS}/user/add_money`, values, config)
+        axios.put(`${SERVER_ADDRESS}/add_money`, values, config)
           .then(response => {
             console.log(response.data);
             toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(values)}`, life: 3000 });
@@ -53,7 +53,7 @@ const AddMoneyDialog = ({ visible, onHide, token }) => {
                         <Form>
                             <MyFormView>
                                 <MyFormText htmlFor="money">kwota:</MyFormText>
-                                <MyFormField id="money" name="money" placeholder="20"/>
+                                <MyFormField id="money" name="money" placeholder="20" step="1" min="1" type="number"/>
                             </MyFormView>
                             <MyFormButton name={"Zatwierdź"}/>
                         </Form>

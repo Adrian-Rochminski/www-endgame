@@ -1,6 +1,5 @@
 "use client"
 import { useRouter } from "next/navigation";
-import dummyParkingsData from '../../../dummyData/dummyParkingsData.json';
 import React, { useState, useEffect, useRef } from 'react';
 import Navbar from '../../../components/Navbar';
 import axios from 'axios';
@@ -19,17 +18,33 @@ export default function LiveView() {
     const [stats, setStats] = useState([]);
     const getColor = (available) => available ? '#24D4A8' : '#EA526F';
 
-    // Get list of existing parkings
+    const dummyData = {
+        "_id": "276c3fb1-98c4-1142-842a-64fbad65ab21",
+        "address": "Łódź, Radwańska 20",
+        "day_rate": 1.5,
+        "day_time_end": "20:00",
+        "day_time_start": "10:00",
+        "night_rate": 2.3,
+        "owner_id": "856316f2-e55e-4383-bf82-330195b89321",
+        "spots": [
+            {"available": false, "floor": 0, "spot": 0},
+            {"available": true, "floor": 0, "spot": 1},
+            {"available": true, "floor": 1, "spot": 0},
+            {"available": false, "floor": 1, "spot": 1}
+        ]
+    }
+
+    // endpoint not implemented
     useEffect(() => {
-        axios.get(`${SERVER_ADDRESS}/parking/parkings`)
+        axios.get(`${SERVER_ADDRESS}/parking/parkind_details/<address>`)
           .then(response => {
             console.log(response.data);
             setParking(response.data)
           })
           .catch(error => {
             console.error('Error fetching data 1:', error);
-            setParking(dummyParkingsData[3])
-            const cc = calculateParkingStats(dummyParkingsData[3])
+            setParking(dummyData)
+            const cc = calculateParkingStats(dummyData)
             setStats(cc)
           });
       }, []);

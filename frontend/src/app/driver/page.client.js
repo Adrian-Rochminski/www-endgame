@@ -25,7 +25,7 @@ export const Driver = (session) => {
     const [visibleAM, setVisibleAM] = useState(false);
     const [visibleST, setVisibleST] = useState(false);
     const [visibleP, setVisibleP] = useState(false);
-    const [selectedLicensePlate, setSelectedLicensePlate] = useState(null);
+    const [selectedLicensePlate, setSelectedLicensePlate] = useState([]);
 
     const toast = useRef(null);
 
@@ -60,7 +60,7 @@ export const Driver = (session) => {
               console.log(response.data);
               return {
                   "license_plate": plate,
-                  "is_occupied": response.status === 200 ? 1 : 0
+                  "is_occupied": response.data.msg === "The car is parked" ? 1 : 0
               };
           } catch (error) {
               console.error('Error fetching data:', error);
@@ -123,12 +123,11 @@ export const Driver = (session) => {
 
     // remove license plate from system
     function remove(selectedLicensePlate){
-      axios.delete(`${SERVER_ADDRESS}/user/license_plate`, {
-          headers: {
-              Authorization: "Bearer " + session.token.token,
-              license_plate: selectedLicensePlate
-          }
-      })
+      let request = {
+        "license_plate": selectedLicensePlate
+      }
+
+      axios.delete(`${SERVER_ADDRESS}/user/license_plate`, request, authHeader)
       .then(response => {
         console.log(response.data);
         toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(response.data)}`, life: 3000 });
@@ -137,11 +136,16 @@ export const Driver = (session) => {
         console.error('Error fetching data 1:', error);
         toast.current.show({ severity: 'error', summary: 'Błąd', detail: `${error}`, life: 3000 });
       });
-      reload(3000);
+      //reload(3000);
     }
 
+    // temporary unavailable
     function unpark(selectedLicensePlate){
-      axios.post(`${SERVER_ADDRESS}/parking/unpark/${selectedLicensePlate}`, authHeader)
+      let request = {
+        "plate": selectedLicensePlate
+      }
+
+      axios.post(`${SERVER_ADDRESS}/parking/unpark`, request, authHeader)
       .then(response => {
         console.log(response.data);
         toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(response.data)}`, life: 3000 });

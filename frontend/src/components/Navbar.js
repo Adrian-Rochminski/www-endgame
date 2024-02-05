@@ -3,8 +3,9 @@ import { Menubar } from 'primereact/menubar';
 import ParkingOSImage from "../../public/ParkingOS_icon.png";
 import MenuSidebar from './Sidebar';
 import { Button } from 'primereact/button';
+import { MySecondaryButton } from './MyButtons';
 
-const Navbar = () => {
+const Navbar = ({ showMenuBtn = true }) => {
     const [visible, setVisible] = useState(false);
 
   const items = [
@@ -14,11 +15,15 @@ const Navbar = () => {
   ];
 
   const start = <img alt="ParkingOS" src={ParkingOSImage.src} style={navbar_img_style} className="mr-2"></img>;
- const end = <Button icon="pi pi-arrow-right" onClick={() => setVisible(true)}/>
+ const end = <MySecondaryButton label="Menu" onClick={() => setVisible(true)}/>
 
   return (
     <div style={navbar_div_style}>
-      <Menubar model={items} start={start} end={end} />
+      {showMenuBtn ? (
+          <Menubar model={items} start={start} end={end} />
+        ) : (
+          <Menubar model={items} start={start} />
+        )}
 
       <MenuSidebar
             visible={visible} 

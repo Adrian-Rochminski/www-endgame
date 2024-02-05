@@ -5,9 +5,15 @@ export const MyFormField = props => {
     return (
         <Field 
             id={props.id} 
-            name={props.name} 
+            name={props.name}
+            type={props.type}
+            step={props.step}
+            min={props.min}
+            max={props.max}
             placeholder={props.placeholder} 
-            disabled={props.disabled} 
+            disabled={props.disabled}
+            onChnge={props.onChange}
+            value={props.value}
             style={{...props.style, ...fieldStyle}} 
         />
     );
