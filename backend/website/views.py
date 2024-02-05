@@ -180,3 +180,19 @@ def add_money():
         {'$set': {'money': balance}}
     )
     return jsonify({"msg": "Money added"}), 200
+
+@views.route('/my_parkings', methods=['GET'])
+@cross_origin()
+@jwt_required()
+def get_parkings():
+    user_id = get_jwt_identity()
+
+    parkings = list(parkings_collection.find({"owner_id": user_id}))
+    for p in parkings:
+        p.pop("history")
+        p.pop("current_usage")
+
+    if parkings:
+        return jsonify(parkings), 200
+    else:
+        return jsonify({"msg": "No parking found with given name"}), 404
