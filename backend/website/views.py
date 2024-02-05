@@ -188,9 +188,6 @@ def get_parkings():
     user_id = get_jwt_identity()
 
     parkings = list(parkings_collection.find({"owner_id": user_id}))
-    for p in parkings:
-        p.pop("history")
-        p.pop("current_usage")
 
     if parkings:
         return jsonify(parkings), 200
