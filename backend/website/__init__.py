@@ -36,17 +36,21 @@ except Exception as e:
 # parking_id = ObjectId()
 # parkings_collection.insert_one({
 #     '_id': parking_id,
-#     'name': 'Central Parking',
-#     'available_spots': [
-#         {'number': 1, 'is_free': True, 'current_car': None, 'occupancy_date': None},
-#         {'number': 2, 'is_free': False, 'current_car': 'DW12345', 'occupancy_date': datetime.now()}
+#     'owner_id': user_id,
+#     'address': 'Central Parking',
+#     'spots': [
+#         {'spot': 1, 'available': True},
+#         {'spot': 2, 'available': False}
 #     ],
-#     'night_hours': {'from': '22:00', 'to': '06:00'},
-#     'day_hours': {'from': '06:00', 'to': '22:00'},
+#     "day_time_start": time as str,
+#     "day_time_end": time as str,
 #     'night_rate': 5.0,
 #     'day_rate': 10.0,
-#     'history': [
+#     'current_usage': [
 #         {'license_plate': 'DW67890', 'start_date': datetime.now(), 'end_date': None, 'paid': 0.0}
+#     ]
+#     'history': [
+#         {'license_plate': 'DW67890', 'start_date': datetime.now(), 'end_date': some_datetime, 'paid': 0.0}
 #     ]
 # })
 
