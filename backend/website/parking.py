@@ -404,6 +404,7 @@ def get_parking(parking_id):
 
 
 @parking.route("/costs", methods=["POST"])
+@cross_origin()
 @jwt_required()
 def add_cost():
     required_params = {
@@ -448,6 +449,7 @@ def add_cost():
 
 
 @parking.route("/costs/<parking_id>", methods=["GET"])
+@cross_origin()
 @jwt_required()
 def get_costs(parking_id):
     user_id = get_jwt_identity()
@@ -462,6 +464,7 @@ def get_costs(parking_id):
 
 
 @parking.route("/costs/update", methods=["PUT"])
+@cross_origin()
 @jwt_required()
 def update_cost():
     user_id = get_jwt_identity()
@@ -495,6 +498,7 @@ def update_cost():
 
 
 @parking.route("/costs/delete", methods=["DELETE"])
+@cross_origin()
 @jwt_required()
 def delete_cost():
     user_id = get_jwt_identity()
