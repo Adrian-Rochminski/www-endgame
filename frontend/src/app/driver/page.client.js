@@ -35,7 +35,6 @@ export const Driver = (session) => {
         }
     }
 
-
     // First request: Fetch plates
     useEffect(() => {
         axios.get(`${SERVER_ADDRESS}/user/license_plates`, authHeader)
@@ -126,7 +125,7 @@ export const Driver = (session) => {
       let request = {
         "license_plate": selectedLicensePlate
       }
-
+      
       axios.delete(`${SERVER_ADDRESS}/user/license_plate`, request, authHeader)
       .then(response => {
         console.log(response.data);
