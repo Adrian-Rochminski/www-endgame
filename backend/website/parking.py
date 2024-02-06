@@ -200,7 +200,7 @@ def park_the_car():
     if not parking_lot:
         return jsonify({"msg": "Parking not found"}), 404
 
-    current_time = datetime.now().time()
+    current_time = datetime.now()
 
     for spot in parking_lot['spots']:
         if spot['available']:
