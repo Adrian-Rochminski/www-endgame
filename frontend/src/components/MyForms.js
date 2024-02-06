@@ -12,7 +12,6 @@ export const MyFormField = props => {
             max={props.max}
             placeholder={props.placeholder} 
             disabled={props.disabled}
-            onChange={props.onChange}
             value={props.value}
             style={{...props.style, ...fieldStyle}} 
         />
