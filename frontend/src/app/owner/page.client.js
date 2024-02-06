@@ -29,9 +29,9 @@ export const Owner = (session) => {
 
     // First request: Fetch parkings
     useEffect(() => {
-        axios.get(`${SERVER_ADDRESS}/parking/parkings`, authHeader)
+        axios.get(`${SERVER_ADDRESS}/user/my_parkings`, authHeader)
           .then(response => {
-            console.log(response.data);
+            console.log(JSON.stringify(response.data));
             setParkings(response.data)
           })
           .catch(error => {
