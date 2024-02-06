@@ -431,13 +431,18 @@ def add_cost():
     if user_id != parking['owner_id']:
         return jsonify({"msg": "Unauthorized access"}), 403
 
+    try:
+        parsed_start_date = datetime.strptime(data['start_date'], "%Y-%m-%d")
+    except ValueError:
+        return jsonify({"msg": "Invalid start_date format, expected 'yyyy-mm-dd'"}), 400
+
     cost = {
         "_id": str(uuid.uuid4()),
         "name": data['name'],
         "price": data['price'],
         "periodic": data['periodic'],
-        "start_date": data['start_date'],
-        "end_date": None if data['periodic'] else data['start_date']
+        "start_date": parsed_start_date,
+        "end_date": None if data['periodic'] else parsed_start_date
     }
 
     parking_collection.update_one(
@@ -460,7 +465,16 @@ def get_costs(parking_id):
     if parking['owner_id'] != user_id:
         return jsonify({"msg": "Unauthorized access"}), 403
 
-    return jsonify({"costs": parking.get('costs', [])}), 200
+    formatted_costs = []
+    for cost in parking.get('costs', []):
+        formatted_cost = cost.copy()
+        if 'start_date' in cost and cost['start_date']:
+            formatted_cost['start_date'] = cost['start_date'].strftime("%Y-%m-%d")
+        if 'end_date' in cost and cost['end_date']:
+            formatted_cost['end_date'] = cost['end_date'].strftime("%Y-%m-%d") if cost['end_date'] else None
+        formatted_costs.append(formatted_cost)
+
+    return jsonify({"costs": formatted_costs}), 200
 
 
 @parking.route("/costs/update", methods=["PUT"])
