@@ -4,15 +4,19 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from website import db
 from flask_cors import cross_origin
 from datetime import datetime, timedelta
+
 parking = Blueprint('parking', __name__)
 parking_collection = db['parkings']
 user_collection = db['users']
 
+
 @parking.before_request
 def before_request():
-    headers = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' }
+    headers = {'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+               'Access-Control-Allow-Headers': 'Content-Type'}
     if request.method == 'OPTIONS' or request.method == 'options':
         return jsonify(headers), 200
+
 
 def parse_str_to_time(time_str):
     return datetime.strptime(time_str, '%H:%M').time()
@@ -58,7 +62,8 @@ def create_parking():
         "day_rate",
         "night_rate",
         "day_time_start",
-        "day_time_end"
+        "day_time_end",
+        "costs"
     }
 
     data = request.get_json()
@@ -76,6 +81,23 @@ def create_parking():
 
     if data["day_rate"] < 0.0 or data["night_rate"] < 0.0:
         return jsonify({"msg": "Invalid rates"}), 400
+
+    if 'costs' not in data or not isinstance(data['costs'], list):
+        return jsonify({"msg": "Missing or invalid costs"}), 400
+
+    costs = []
+    for cost_data in data['costs']:
+        if not all(key in cost_data for key in ['name', 'price', 'periodic', 'start_date']):
+            return jsonify({"msg": "Missing key in cost data"}), 400
+        cost = {
+            "_id": str(uuid.uuid4()),
+            "name": cost_data['name'],
+            "price": cost_data['price'],
+            "periodic": cost_data['periodic'],
+            "start_date": cost_data['start_date'],
+            "end_date": None if cost_data['periodic'] else cost_data['start_date']
+        }
+        costs.append(cost)
 
     from itertools import product
     spots = [{"floor": y, "spot": x, "available": True}
@@ -107,7 +129,8 @@ def create_parking():
         "night_rate": data["night_rate"],
         "day_time_start": parse_time_to_str(data["day_time_start"]),
         "day_time_end": parse_time_to_str(data["day_time_end"]),
-        "extra_rules": extra_rules
+        "extra_rules": extra_rules,
+        "costs": costs
     }
 
     parking_collection.insert_one(new_parking)
@@ -165,6 +188,7 @@ def find_cheapest():
     if cheapest_lot:
         cheapest_lot.pop("current_usage")
         cheapest_lot.pop("history")
+        cheapest_lot.pop("costs")
         return jsonify(cheapest_lot), 200
     else:
         return jsonify({"msg": "No parking available"}), 404
@@ -295,7 +319,8 @@ def unpark_car():
             fee = calculate_parking_fee(
                 start_time, end_time,
                 parking_lot['day_rate'], parking_lot['night_rate'],
-                {'from': parse_str_to_time(parking_lot['day_time_end']), 'to': parse_str_to_time(parking_lot['day_time_start'])}
+                {'from': parse_str_to_time(parking_lot['day_time_end']),
+                 'to': parse_str_to_time(parking_lot['day_time_start'])}
             )
 
             if float(user['money'].to_decimal()) < fee:
@@ -348,6 +373,8 @@ def get_all_parkings():
     for p in parkings:
         p.pop('current_usage')
         p.pop('history')
+        if 'costs' in p:
+            p.pop('costs')
 
     return jsonify(parkings), 200
 
@@ -375,6 +402,7 @@ def search_parking():
     else:
         return jsonify({"msg": "No parking found with given name"}), 404
 
+
 @parking.route("/parking_details/<id>", methods=["GET"])
 @jwt_required()
 def get_parking(parking_id):
@@ -383,3 +411,141 @@ def get_parking(parking_id):
     if parking['owner_id'] == user_id:
         return jsonify({"msg": "The parking does not belong to this account"}), 401
     return jsonify(parking), 200
+
+
+@parking.route("/costs", methods=["POST"])
+@cross_origin()
+@jwt_required()
+def add_cost():
+    required_params = {
+        "parking_id",
+        "name",
+        "price",
+        "periodic",
+        "start_date"
+    }
+
+    data = request.get_json()
+
+    if data is None:
+        return jsonify({"msg": "Missing data"}), 400
+    missing_keys = required_params - set(data)
+    if missing_keys:
+        return jsonify({"msg": "Missing key-values", "missing": list(missing_keys)}), 400
+
+    user_id = get_jwt_identity()
+    parking_id = data['parking_id']
+
+    parking = parking_collection.find_one({"_id": parking_id})
+
+    if user_id != parking['owner_id']:
+        return jsonify({"msg": "Unauthorized access"}), 403
+
+    try:
+        parsed_start_date = datetime.strptime(data['start_date'], "%Y-%m-%d")
+    except ValueError:
+        return jsonify({"msg": "Invalid start_date format, expected 'yyyy-mm-dd'"}), 400
+
+    cost = {
+        "_id": str(uuid.uuid4()),
+        "name": data['name'],
+        "price": data['price'],
+        "periodic": data['periodic'],
+        "start_date": parsed_start_date,
+        "end_date": None if data['periodic'] else parsed_start_date
+    }
+
+    parking_collection.update_one(
+        {'_id': parking_id},
+        {'$push': {'costs': cost}}
+    )
+
+    return jsonify({"msg": "Successfully added"}), 200
+
+
+@parking.route("/costs/<parking_id>", methods=["GET"])
+@cross_origin()
+@jwt_required()
+def get_costs(parking_id):
+    user_id = get_jwt_identity()
+    parking = parking_collection.find_one({"_id": parking_id})
+
+    if parking is None:
+        return jsonify({"msg": "Parking not found"}), 404
+    if parking['owner_id'] != user_id:
+        return jsonify({"msg": "Unauthorized access"}), 403
+
+    formatted_costs = []
+    for cost in parking.get('costs', []):
+        formatted_cost = cost.copy()
+        if 'start_date' in cost and cost['start_date']:
+            formatted_cost['start_date'] = cost['start_date'].strftime("%Y-%m-%d")
+        if 'end_date' in cost and cost['end_date']:
+            formatted_cost['end_date'] = cost['end_date'].strftime("%Y-%m-%d") if cost['end_date'] else None
+        formatted_costs.append(formatted_cost)
+
+    return jsonify({"costs": formatted_costs}), 200
+
+
+@parking.route("/costs/update", methods=["PUT"])
+@cross_origin()
+@jwt_required()
+def update_cost():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+
+    if not data or 'parking_id' not in data or 'cost_id' not in data:
+        return jsonify({"msg": "Missing parking_id or cost_id"}), 400
+
+    parking_id = data['parking_id']
+    cost_id = data['cost_id']
+
+    parking = parking_collection.find_one({"_id": parking_id, "owner_id": user_id})
+    if not parking:
+        return jsonify({"msg": "Unauthorized or parking not found"}), 403
+
+    update_result = parking_collection.update_one(
+        {"_id": parking_id, "costs._id": cost_id},
+        {"$set": {
+            "costs.$.name": data.get("name"),
+            "costs.$.price": data.get("price"),
+            "costs.$.periodic": data.get("periodic"),
+            "costs.$.start_date": data.get("start_date"),
+            "costs.$.end_date": data.get("end_date")
+        }}
+    )
+
+    if update_result.modified_count == 0:
+        return jsonify({"msg": "Cost not found or update failed"}), 404
+
+    return jsonify({"msg": "Cost updated successfully"}), 200
+
+
+@parking.route("/costs/delete", methods=["DELETE"])
+@cross_origin()
+@jwt_required()
+def delete_cost():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+
+    if not data or 'parking_id' not in data or 'cost_id' not in data:
+        return jsonify({"msg": "Missing parking_id or cost_id"}), 400
+
+    parking_id = data['parking_id']
+    cost_id = data['cost_id']
+
+    # Verify if the user is the owner of the parking
+    parking = parking_collection.find_one({"_id": parking_id, "owner_id": user_id})
+    if not parking:
+        return jsonify({"msg": "Unauthorized or parking not found"}), 403
+
+    # Remove the specific cost from the parking document
+    delete_result = parking_collection.update_one(
+        {"_id": parking_id},
+        {"$pull": {"costs": {"_id": cost_id}}}
+    )
+
+    if delete_result.modified_count == 0:
+        return jsonify({"msg": "Cost not found or removal failed"}), 404
+
+    return jsonify({"msg": "Cost removed successfully"}), 200
