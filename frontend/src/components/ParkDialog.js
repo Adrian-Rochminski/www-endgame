@@ -90,7 +90,7 @@ const ParkDialog = ({ visible, onHide, licensePlate, token }) => {
                                                     <p>Następne 6 godzin: {parking.extra_rules.rate_from_six_hours}</p>
                                                 </>
                                             )}
-                                            <MyPrimaryButton label="Wybierz" onClick={() => select_parking(parking.id)}/>
+                                            <MyPrimaryButton label="Wybierz" onClick={() => select_parking(parking._id)}/>
                                         </div>
                                     </AccordionTab>
                                 )

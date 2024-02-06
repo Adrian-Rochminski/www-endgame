@@ -7,6 +7,7 @@ import {useFormik} from "formik";
 import { useRouter } from "next/navigation";
 import {Card} from "primereact/card";
 import {SERVER_ADDRESS} from "../../../../utils/Links";
+import {MyFormButton} from "../../../components/MyButtons";
 
 export default function Register() {
     const toast = useRef(null);
@@ -16,20 +17,31 @@ export default function Register() {
         initialValues: {
             username: '',
             password: '',
+            rep_password: '',
         },
         onSubmit: async (values) => {
-            try {
-                const response = await axios.post(SERVER_ADDRESS + '/register', values);
-                console.log(response);
-                toast.current.show({ severity: 'success', summary: 'Success', detail: "Account created successfully", life: 3000 });
-                router.push('/auth/signin');
-            } catch (error) {
-                console.log(error);
-                const errorMessage = error.response?.data || 'An error occurred';
-                toast.current.show({ severity: 'error', summary: 'Error', detail: errorMessage, life: 3000 });
+            console.log(values)
+            if (values.password === values.rep_password) {
+                try {
+                    const request = {
+                        username: values.username,
+                        password: values.password,
+                    };
+                    const response = await axios.post(SERVER_ADDRESS + '/register', request);
+                    console.log(response);
+                    toast.current.show({ severity: 'success', summary: 'Success', detail: "Account created successfully", life: 3000 });
+                    router.push('/auth/signin');
+                } catch (error) {
+                    console.log(error);
+                    const errorMessage = error.response?.data || 'An error occurred';
+                    toast.current.show({ severity: 'error', summary: 'Error', detail: errorMessage, life: 3000 });
+                }
+            } else {
+                toast.current.show({ severity: 'error', summary: 'Error', detail: 'Passwords do not match', life: 3000 });
             }
         },
     });
+    
 
     return (
         <div style={style}>
@@ -38,27 +50,40 @@ export default function Register() {
                 <Card title="Rejestracja" subTitle="" className="md:w-25rem">
                     <Toast ref={toast} />
                     <form onSubmit={formik.handleSubmit}>
-                        <div>
-                            <label htmlFor="username">Username:</label>
+                        <div style={viewStyle}>
+                            <label htmlFor="username" style={textStyle}>Nazwa:</label>
                             <input
                                 type="text"
                                 id="username"
                                 name="username"
                                 onChange={formik.handleChange}
                                 value={formik.values.username}
+                                style={fieldStyle}
                             />
                         </div>
-                        <div>
-                            <label htmlFor="password">Password:</label>
+                        <div style={viewStyle}>
+                            <label htmlFor="password" style={textStyle}>Hasło:</label>
                             <input
                                 type="password"
                                 id="password"
                                 name="password"
                                 onChange={formik.handleChange}
                                 value={formik.values.password}
+                                style={fieldStyle}
                             />
                         </div>
-                        <button type="submit">Stwórz konto</button>
+                        <div style={viewStyle}>
+                            <label htmlFor="rep_password" style={textStyle}>Powtórz hasło:</label>
+                            <input
+                                type="password"
+                                id="rep_password"
+                                name="rep_password"
+                                onChange={formik.handleChange}
+                                value={formik.values.rep_password}
+                                style={fieldStyle}
+                            />
+                        </div>
+                        <MyFormButton name={"Stwórz konto"}/>
                     </form>
                 </Card>
             </div>
@@ -88,3 +113,30 @@ const navbar_img_style = {
     width: '25px',
 }
 
+const fieldStyle = {
+    border: "1px solid #06b6d4",
+    padding: "0px 10px",
+    borderRadius: "5px",
+    flexGrow: 0,
+    textAlign: "right",
+    outline: 'none',
+};
+
+const viewStyle = {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+};
+
+const textStyle = {
+    marginRight: 30,
+};
+
+const textHeaderStyle = {
+    marginRight: 30,
+    fontWeight: 'bold',
+    fontSize: '17px',
+    marginBottom: '10px',
+};

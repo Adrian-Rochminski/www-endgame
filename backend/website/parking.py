@@ -375,4 +375,4 @@ def get_parking(parking_id):
     parking = parking_collection.find_one({"_id": parking_id})
     if parking['owner_id'] == user_id:
         return jsonify({"msg": "The parking does not belong to this account"}), 401
-    return jsonify(parking), 400
+    return jsonify(parking), 200
