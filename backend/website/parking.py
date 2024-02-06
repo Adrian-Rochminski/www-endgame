@@ -373,7 +373,8 @@ def get_all_parkings():
     for p in parkings:
         p.pop('current_usage')
         p.pop('history')
-        p.pop('costs')
+        if 'costs' in p:
+            p.pop('costs')
 
     return jsonify(parkings), 200
 
