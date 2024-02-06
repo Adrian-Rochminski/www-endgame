@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import {Card} from "primereact/card";
 import {signIn} from "next-auth/react";
+import {MyFormButton} from "../../../components/MyButtons";
 
 export default function SignIn() {
     const toast = useRef(null);
@@ -45,27 +46,29 @@ export default function SignIn() {
                 <Card title="Logowanie" subTitle="" className="md:w-25rem">
             <Toast ref={toast} />
             <form onSubmit={formik.handleSubmit}>
-                <div>
-                    <label htmlFor="username">Username:</label>
+                <div style={viewStyle}>
+                    <label htmlFor="username" style={textStyle}>Nazwa:</label>
                     <input
                         type="text"
                         id="username"
                         name="username"
                         onChange={formik.handleChange}
                         value={formik.values.username}
+                        style={fieldStyle}
                     />
                 </div>
-                <div>
-                    <label htmlFor="password">Password:</label>
+                <div style={viewStyle}>
+                    <label htmlFor="password" style={textStyle}>Hasło:</label>
                     <input
                         type="password"
                         id="password"
                         name="password"
                         onChange={formik.handleChange}
                         value={formik.values.password}
+                        style={fieldStyle}
                     />
                 </div>
-                <button type="submit">Zaloguj się</button>
+                <MyFormButton name={"Zaloguj się"}/>
             </form>
                 </Card>
         </div>
@@ -95,3 +98,30 @@ const navbar_img_style = {
     width: '25px',
 }
 
+const fieldStyle = {
+    border: "1px solid #06b6d4",
+    padding: "0px 10px",
+    borderRadius: "5px",
+    flexGrow: 0,
+    textAlign: "right",
+    outline: 'none',
+};
+
+const viewStyle = {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+};
+
+const textStyle = {
+    marginRight: 30,
+};
+
+const textHeaderStyle = {
+    marginRight: 30,
+    fontWeight: 'bold',
+    fontSize: '17px',
+    marginBottom: '10px',
+};
