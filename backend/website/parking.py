@@ -188,6 +188,7 @@ def find_cheapest():
     if cheapest_lot:
         cheapest_lot.pop("current_usage")
         cheapest_lot.pop("history")
+        cheapest_lot.pop("costs")
         return jsonify(cheapest_lot), 200
     else:
         return jsonify({"msg": "No parking available"}), 404
@@ -372,6 +373,7 @@ def get_all_parkings():
     for p in parkings:
         p.pop('current_usage')
         p.pop('history')
+        p.pop('costs')
 
     return jsonify(parkings), 200
 
