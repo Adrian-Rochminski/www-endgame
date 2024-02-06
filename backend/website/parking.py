@@ -361,7 +361,14 @@ def search_parking():
         return jsonify({"msg": "Parking address is required"}), 400
 
     parkings = parking_collection.find({"address": {"$regex": parking_name, "$options": "i"}})
-    parking_list = [{"id": str(parking["_id"]), "address": parking["address"]} for parking in parkings]
+    # parking_list = [{"id": str(parking["_id"]), "address": parking["address"]} for parking in parkings]
+    parking_list = []
+    for p in parkings:
+        p.pop('current_usage')
+        p.pop('history')
+        if 'costs' in p:
+            p.pop('costs')
+        parking_list.append(p)
 
     if parking_list:
         return jsonify(parking_list)
