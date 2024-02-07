@@ -1,4 +1,7 @@
+import math
 import uuid
+from collections import defaultdict
+
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from website import db
@@ -153,6 +156,7 @@ def check_car_status(plate):
             if usage['car'] == plate:
                 return jsonify({"msg": "The car is parked",
                                 "parking_id": parking_lot['_id'],
+                                "parking_address": parking_lot['address'],
                                 "floor": usage['floor'],
                                 "spot": usage['spot']
                                 }), 200
@@ -247,28 +251,38 @@ def park_the_car():
     return jsonify({"msg": "No spot available on this parking"}), 404
 
 
-def calculate_parking_fee(start_time, end_time, day_rate, night_rate, night_hours):
-    total_fee = 0.0
-    current_time = start_time
+def calculate_parking_fee(start_datetime, end_datetime, day_rate, night_rate, day_start, day_end,
+                           first_hour_multiplier, special_rate_multiplier, discount_hours=7):
+    total_duration = (end_datetime - start_datetime).total_seconds() / 3600
 
-    while current_time < end_time:
-        if night_hours['from'] <= current_time.time() < night_hours['to']:
-            next_time = datetime.combine(current_time.date(), night_hours['to'])
-            hours = (min(end_time, next_time) - current_time).total_seconds() / 3600
-            total_fee += hours * night_rate
-        else:
-            if current_time.time() >= night_hours['to']:
-                next_time = datetime.combine(current_time.date() + timedelta(days=1),
-                                             night_hours['from'])
+    if total_duration <= 0:
+        return 0
+
+    total_cost = 0.0
+    hours_counted = 0
+
+    while total_duration > 0:
+        if hours_counted == 0:
+            if day_start <= start_datetime.time() < day_end:
+                total_cost += day_rate * first_hour_multiplier
             else:
-                next_time = datetime.combine(current_time.date(),
-                                             night_hours['from'])
-            hours = (min(end_time, next_time) - current_time).total_seconds() / 3600
-            total_fee += hours * day_rate
+                total_cost += night_rate * first_hour_multiplier
+        elif 0 < hours_counted < discount_hours:
+            if day_start <= start_datetime.time() < day_end:
+                total_cost += day_rate * special_rate_multiplier
+            else:
+                total_cost += night_rate * special_rate_multiplier
+        else:
+            if day_start <= start_datetime.time() < day_end:
+                total_cost += day_rate
+            else:
+                total_cost += night_rate
 
-        current_time = next_time
+        start_datetime += timedelta(hours=1)
+        total_duration -= 1
+        hours_counted += 1
 
-    return total_fee
+    return total_cost
 
 
 @parking.route("/estimate_parking_fee", methods=["POST"])
@@ -289,8 +303,12 @@ def estimate_parking_fee():
             end_time = datetime.now()
             fee = calculate_parking_fee(
                 start_time, end_time,
-                parking_lot['day_rate'], parking_lot['night_rate'],
-                {'from': parking_lot['night_hours']['from'], 'to': parking_lot['night_hours']['to']}
+                parking_lot['day_rate'],
+                parking_lot['night_rate'],
+                parse_str_to_time(parking_lot['day_time_end']),
+                parse_str_to_time(parking_lot['day_time_start']),
+                parking_lot['extra_rules'].get('first_hour', 1.0),
+                parking_lot['extra_rules'].get('rate_from_six_hours', 1.0)
             )
             return jsonify({"estimated_fee": fee}), 200
 
@@ -314,13 +332,16 @@ def unpark_car():
 
     for usage in parking_lot['current_usage']:
         if usage['car'] == plate:
-            start_time = datetime.strptime(usage['start_time'], "%Y-%m-%d %H:%M:%S")
+            start_time = usage['start_time']
             end_time = datetime.now()
             fee = calculate_parking_fee(
                 start_time, end_time,
-                parking_lot['day_rate'], parking_lot['night_rate'],
-                {'from': parse_str_to_time(parking_lot['day_time_end']),
-                 'to': parse_str_to_time(parking_lot['day_time_start'])}
+                parking_lot['day_rate'],
+                parking_lot['night_rate'],
+                parse_str_to_time(parking_lot['day_time_end']),
+                parse_str_to_time(parking_lot['day_time_start']),
+                parking_lot['extra_rules'].get('first_hour', 1.0),
+                parking_lot['extra_rules'].get('rate_from_six_hours', 1.0)
             )
 
             if float(user['money'].to_decimal()) < fee:
@@ -404,6 +425,7 @@ def search_parking():
 
 
 @parking.route("/parking_details/<id>", methods=["GET"])
+@cross_origin()
 @jwt_required()
 def get_parking(parking_id):
     user_id = get_jwt_identity()
@@ -549,3 +571,210 @@ def delete_cost():
         return jsonify({"msg": "Cost not found or removal failed"}), 404
 
     return jsonify({"msg": "Cost removed successfully"}), 200
+
+@parking.route("/statistics/spots/<parking_id>", methods=["GET"])
+@cross_origin()
+@jwt_required()
+def parking_spots_statistics(parking_id):
+    user_id = get_jwt_identity()
+    parking = parking_collection.find_one({"_id": parking_id})
+
+    if parking is None:
+        return jsonify({"msg": "Parking not found"}), 404
+    if parking['owner_id'] != user_id:
+        return jsonify({"msg": "Unauthorized access"}), 403
+
+    spots_statistics = {}
+    for spot in parking.get('spots', []):
+        spot_identifier = f"{spot['floor']}-{spot['spot']}"
+        spots_statistics[spot_identifier] = {"total_earnings": 0, "history": [], "availability": spot['available']}
+
+    for entry in parking.get('history', []):
+        spot_identifier = f"{entry['floor']}-{entry['spot']}"
+        if spot_identifier in spots_statistics:
+            spots_statistics[spot_identifier]["total_earnings"] += entry['paid']
+            formatted_entry = entry.copy()
+            formatted_entry['start_date'] = entry['start_date'].strftime("%Y-%m-%d %H:%M:%S")
+            formatted_entry['end_date'] = entry['end_date'].strftime("%Y-%m-%d %H:%M:%S") if entry.get(
+                'end_date') else None
+            spots_statistics[spot_identifier]["history"].append(formatted_entry)
+
+    formatted_statistics = [{
+        "floor": int(identifier.split('-')[0]),
+        "spot_number": int(identifier.split('-')[1]),
+        "availability": stats["availability"],
+        "total_earnings": stats["total_earnings"],
+        "history": stats["history"]
+    } for identifier, stats in spots_statistics.items()]
+
+    return jsonify({"parking_id": parking_id, "spots_statistics": formatted_statistics}), 200
+
+
+
+@parking.route("/statistics/cars", methods=["GET"])
+@cross_origin()
+@jwt_required()
+def car_parking_statistics():
+    user_id = get_jwt_identity()
+    car_license_plate = request.args.get("license_plate")
+
+    if not car_license_plate:
+        return jsonify({"msg": "Missing car license plate"}), 400
+
+    all_parkings = parking_collection.find({"history.license_plate": car_license_plate, "owner_id": user_id})
+
+    total_paid = 0
+    car_history = []
+
+    for parking in all_parkings:
+        for entry in parking.get('history', []):
+            if entry['license_plate'] == car_license_plate:
+                total_paid += entry['paid']
+                car_history.append({
+                    "parking_id": parking['_id'],
+                    "address": parking['address'],
+                    "start_date": entry['start_date'].strftime("%Y-%m-%d %H:%M:%S"),
+                    "end_date": entry['end_date'].strftime("%Y-%m-%d %H:%M:%S") if entry.get('end_date') else None,
+                    "paid": entry['paid']
+                })
+
+    return jsonify({"car_license_plate": car_license_plate, "total_paid": total_paid, "history": car_history}), 200
+
+
+@parking.route("/costs/summary", methods=["POST"])
+@cross_origin()
+@jwt_required()
+def parking_costs_summary():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+
+    if not data or not all(k in data for k in ('parking_id', 'start_date', 'end_date')):
+        return jsonify({"msg": "Missing required data"}), 400
+
+    parking_id = data['parking_id']
+    start_date = data['start_date']
+    end_date = data['end_date']
+
+    parking = parking_collection.find_one({"_id": parking_id})
+    if not parking:
+        return jsonify({"msg": "Parking not found"}), 404
+    if parking['owner_id'] != user_id:
+        return jsonify({"msg": "Unauthorized access"}), 403
+
+    try:
+        start_date_dt = datetime.strptime(start_date, "%Y-%m-%d")
+        end_date_dt = datetime.strptime(end_date, "%Y-%m-%d")
+    except ValueError:
+        return jsonify({"msg": "Invalid date format, expected YYYY-MM-DD"}), 400
+
+    cost_summary_per_month = {}
+    monthly_costs = [cost for cost in parking.get('costs', [])]
+
+    current_month = start_date_dt.replace(day=1)
+    while current_month <= end_date_dt:
+        month_str = current_month.strftime("%Y-%m")
+        cost_summary_per_month[month_str] = {'total_cost': 0, 'details': []}
+
+        for cost in monthly_costs:
+            cost_start_dt = cost['start_date']
+            cost_end_dt = cost.get('end_date', None)
+
+            if cost['periodic']:
+                if (cost_start_dt < current_month + timedelta(days=32)) and (
+                        not cost_end_dt or cost_end_dt >= current_month):
+                    cost_summary_per_month[month_str]['total_cost'] += cost['price']
+                    cost['start_date'] = cost['start_date']
+                    cost['end_date'] = cost['end_date'] if cost.get('end_date') else None
+                    cost_summary_per_month[month_str]['details'].append({
+                        **cost,
+                        "start_date": cost['start_date'].strftime("%Y-%m-%d %H:%M:%S"),
+                        "end_date": cost['end_date'] if cost['end_date'] else None
+                    })
+            elif cost_start_dt.year == current_month.year and cost_start_dt.month == current_month.month:
+                cost_summary_per_month[month_str]['total_cost'] += cost['price']
+                cost_summary_per_month[month_str]['details'].append({
+                    **cost,
+                    "start_date": cost['start_date'].strftime("%Y-%m-%d %H:%M:%S"),
+                    "end_date": cost['end_date'] if cost['end_date'] else None
+                    }
+                )
+
+        current_month = (current_month.replace(day=28) + timedelta(days=4)).replace(day=1)
+
+    response_data = [{
+        "month": month,
+        "total_cost": details['total_cost'],
+        "costs": [dict(detail, start_date=detail['start_date'], end_date=detail.get('end_date', 'ongoing')) for detail
+                  in details['details']]
+    } for month, details in sorted(cost_summary_per_month.items())]
+
+    return jsonify({"parking_id": parking_id, "cost_summary": response_data}), 200
+
+@parking.route("/summary", methods=["POST"])
+@cross_origin()
+@jwt_required()
+def parking_profit_summary():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+
+    if not data or not all(k in data for k in ('parking_id', 'start_date', 'end_date')):
+        return jsonify({"msg": "Missing required data"}), 400
+
+    parking_id = data['parking_id']
+    start_date = data['start_date']
+    end_date = data['end_date']
+
+    parking = parking_collection.find_one({"_id": parking_id})
+    if not parking:
+        return jsonify({"msg": "Parking not found"}), 404
+    if parking['owner_id'] != user_id:
+        return jsonify({"msg": "Unauthorized access"}), 403
+
+    try:
+        start_date_dt = datetime.strptime(start_date, "%Y-%m-%d")
+        end_date_dt = datetime.strptime(end_date, "%Y-%m-%d")
+    except ValueError:
+        return jsonify({"msg": "Invalid date format, expected YYYY-MM-DD"}), 400
+
+    monthly_costs = defaultdict(float)
+    monthly_earnings = defaultdict(float)
+
+    for cost in parking.get('costs', []):
+        process_monthly_entries(cost, monthly_costs, start_date_dt, end_date_dt, True)
+
+    for entry in parking.get('history', []):
+        payment_date = entry['start_date']
+        month_str = payment_date.strftime("%Y-%m")
+        if start_date_dt <= payment_date <= end_date_dt:
+            monthly_earnings[month_str] += entry['paid']
+
+    profit_summary = []
+    current_month = start_date_dt.replace(day=1)
+    while current_month <= end_date_dt:
+        month_str = current_month.strftime("%Y-%m")
+        profit = monthly_earnings[month_str] - monthly_costs[month_str]
+        profit_summary.append({
+            "month": month_str,
+            "earnings": monthly_earnings[month_str],
+            "cost": monthly_costs[month_str],
+            "profit": profit
+        })
+        current_month = (current_month.replace(day=28) + timedelta(days=4)).replace(day=1)
+
+    profit_summary_sorted = sorted(profit_summary, key=lambda x: x['month'])
+
+    return jsonify({"parking_id": parking_id, "profit_summary": profit_summary_sorted}), 200
+
+
+def process_monthly_entries(entry, monthly_tracker, start_date, end_date, is_cost):
+    start_dt = entry['start_date']
+    end_dt = entry.get('end_date', None)
+    current_month = start_date
+    while current_month <= end_date:
+        month_str = current_month.strftime("%Y-%m")
+        if is_cost and entry.get('periodic', False):
+            if not end_dt or current_month <= end_dt:
+                monthly_tracker[month_str] += entry['price']
+        elif start_dt.year == current_month.year and start_dt.month == current_month.month:
+            monthly_tracker[month_str] += entry['price']
+        current_month = (current_month.replace(day=28) + timedelta(days=4)).replace(day=1)
