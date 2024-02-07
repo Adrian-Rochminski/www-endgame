@@ -710,7 +710,7 @@ def parking_costs_summary():
 
     return jsonify({"parking_id": parking_id, "cost_summary": response_data}), 200
 
-@parking.route("/profit/summary", methods=["POST"])
+@parking.route("/summary", methods=["POST"])
 @cross_origin()
 @jwt_required()
 def parking_profit_summary():
