@@ -1,5 +1,7 @@
 import math
 import uuid
+from collections import defaultdict
+
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from website import db
@@ -707,3 +709,72 @@ def parking_costs_summary():
     } for month, details in sorted(cost_summary_per_month.items())]
 
     return jsonify({"parking_id": parking_id, "cost_summary": response_data}), 200
+
+@parking.route("/profit/summary", methods=["POST"])
+@cross_origin()
+@jwt_required()
+def parking_profit_summary():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+
+    if not data or not all(k in data for k in ('parking_id', 'start_date', 'end_date')):
+        return jsonify({"msg": "Missing required data"}), 400
+
+    parking_id = data['parking_id']
+    start_date = data['start_date']
+    end_date = data['end_date']
+
+    parking = parking_collection.find_one({"_id": parking_id})
+    if not parking:
+        return jsonify({"msg": "Parking not found"}), 404
+    if parking['owner_id'] != user_id:
+        return jsonify({"msg": "Unauthorized access"}), 403
+
+    try:
+        start_date_dt = datetime.strptime(start_date, "%Y-%m-%d")
+        end_date_dt = datetime.strptime(end_date, "%Y-%m-%d")
+    except ValueError:
+        return jsonify({"msg": "Invalid date format, expected YYYY-MM-DD"}), 400
+
+    monthly_costs = defaultdict(float)
+    monthly_earnings = defaultdict(float)
+
+    for cost in parking.get('costs', []):
+        process_monthly_entries(cost, monthly_costs, start_date_dt, end_date_dt, True)
+
+    for entry in parking.get('history', []):
+        payment_date = entry['start_date']
+        month_str = payment_date.strftime("%Y-%m")
+        if start_date_dt <= payment_date <= end_date_dt:
+            monthly_earnings[month_str] += entry['paid']
+
+    profit_summary = []
+    current_month = start_date_dt.replace(day=1)
+    while current_month <= end_date_dt:
+        month_str = current_month.strftime("%Y-%m")
+        profit = monthly_earnings[month_str] - monthly_costs[month_str]
+        profit_summary.append({
+            "month": month_str,
+            "earnings": monthly_earnings[month_str],
+            "cost": monthly_costs[month_str],
+            "profit": profit
+        })
+        current_month = (current_month.replace(day=28) + timedelta(days=4)).replace(day=1)
+
+    profit_summary_sorted = sorted(profit_summary, key=lambda x: x['month'])
+
+    return jsonify({"parking_id": parking_id, "profit_summary": profit_summary_sorted}), 200
+
+
+def process_monthly_entries(entry, monthly_tracker, start_date, end_date, is_cost):
+    start_dt = entry['start_date']
+    end_dt = entry.get('end_date', None)
+    current_month = start_date
+    while current_month <= end_date:
+        month_str = current_month.strftime("%Y-%m")
+        if is_cost and entry.get('periodic', False):
+            if not end_dt or current_month <= end_dt:
+                monthly_tracker[month_str] += entry['price']
+        elif start_dt.year == current_month.year and start_dt.month == current_month.month:
+            monthly_tracker[month_str] += entry['price']
+        current_month = (current_month.replace(day=28) + timedelta(days=4)).replace(day=1)
