@@ -15,8 +15,7 @@ const ShowTicketDialog = ({ visible, onHide, licensePlate, token }) => {
               }
           };
           
-          // Not implemented endpoint
-          axios.post(`${SERVER_ADDRESS}/user/license_plate_details/${licensePlate}`, config)
+          axios.get(`${SERVER_ADDRESS}/parking/check_plate/${licensePlate}`, config)
           .then(response => {
             console.log(response.data);
             setPlateDetails(response.data);
@@ -43,7 +42,7 @@ const ShowTicketDialog = ({ visible, onHide, licensePlate, token }) => {
                 icon="pi pi-exclamation-triangle" 
             >
                 <div>
-                    <p className="m-0">Numer rejestracyjny: <b>{plateDetails.license_plate}</b></p>
+                    <p className="m-0">Numer rejestracyjny: <b>{licensePlate}</b></p>
                     <p className="m-0">Parking: <b>{plateDetails.address}</b></p>
                     <p className="m-0">Piętro: <b>{plateDetails.floor}</b></p>
                     <p className="m-0">Miejsce: <b>{plateDetails.spot}</b></p>
