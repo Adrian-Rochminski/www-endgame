@@ -11,12 +11,32 @@ import { SERVER_ADDRESS } from '../../../../utils/Links'
 import { Toast } from 'primereact/toast';
 import reload from '../../../../utils/Reload'
 import { TabView, TabPanel } from 'primereact/tabview';
+import { Tooltip } from 'primereact/tooltip';
 
-export default function LiveView() {
+export const LiveView = (session) => {
     const router = useRouter();
+    const [parkingId, setParkingId] = useState('')
     const [parking, setParking] = useState([]);
     const [stats, setStats] = useState([]);
     const getColor = (available) => available ? '#24D4A8' : '#EA526F';
+
+    let authHeader = {
+        headers: {
+            Authorization: "Bearer " + session.token.token
+        }
+    }
+
+    // get parking id from browser header
+    useEffect(() => {
+        const queryParams = new URLSearchParams(window.location.search);
+        const id = queryParams.get('id');
+        if (id) {
+          console.log(id);
+          const formattedId = id.replace(/^"|"$/g, '');
+          console.log(formattedId);
+          setParkingId(formattedId);
+        }
+      }, [router.query]);
 
     const dummyData = {
         "_id": "276c3fb1-98c4-1142-842a-64fbad65ab21",
@@ -34,25 +54,28 @@ export default function LiveView() {
         ]
     }
 
-    // endpoint not implemented
+    // endpoint has problems 07.02.24
     useEffect(() => {
-        axios.get(`${SERVER_ADDRESS}/parking/parkind_details/<address>`)
-          .then(response => {
-            console.log(response.data);
-            setParking(response.data)
-          })
-          .catch(error => {
-            console.error('Error fetching data 1:', error);
-            setParking(dummyData)
-            const cc = calculateParkingStats(dummyData)
-            setStats(cc)
-          });
-      }, []);
+        console.log("here -> " + parkingId)
+        if (parkingId) {
+            axios.get(`${SERVER_ADDRESS}/parking/parking_details/${parkingId}`, authHeader)
+            .then(response => {
+                console.log(response.data);
+                setParking(response.data)
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                setParking(dummyData)
+                const cc = calculateParkingStats(dummyData)
+                setStats(cc)
+            });
+        }
+      }, [parkingId]);
     if (!parking || !stats) { return <p>Waiting for parking ...</p>; }
 
       // Calculate capacity of parking
     function calculateParkingStats(data) {
-        console.log(data);
+        //console.log(data);
         let totalPlacesPerFloor = {};
         let freePlacesPerFloor = {};
         data.spots.forEach(spot => {
@@ -108,21 +131,27 @@ export default function LiveView() {
                                         .map((spot, index) => (
                                             <React.Fragment key={index}>
                                                 {index % 3 === 0 && index !== 0 && <div style={{ clear: 'both' }}></div>}
-                                                <div style={{
-                                                    width: '150px',
-                                                    height: '200px',
-                                                    backgroundColor: getColor(spot.available),
-                                                    float: 'left',
-                                                    margin: '5px',
-                                                    textAlign: 'center',
-                                                    lineHeight: '200px',
-                                                    borderRadius: '10px'
-                                                }}>
+                                                <div
+                                                    id={`spot-${spot.floor}-${spot.spot}`} // Unique ID for each spot
+                                                    style={{
+                                                        width: '150px',
+                                                        height: '200px',
+                                                        backgroundColor: getColor(spot.available),
+                                                        float: 'left',
+                                                        margin: '5px',
+                                                        textAlign: 'center',
+                                                        lineHeight: '200px',
+                                                        borderRadius: '10px'
+                                                    }}
+                                                >
                                                     Miejsce {spot.spot}
+                                                    {/* Tooltip component targeting the unique ID */}
+                                                    <Tooltip target={`#spot-${spot.floor}-${spot.spot}`} content={spot.available ? 'Dostępne' : 'Zajęte'} position="bottom" />
                                                 </div>
-                                            </React.Fragment>
-                                        ))
-                                    }
+                                        </React.Fragment>
+                                    ))
+                                }
+
                                 </div>
                             </TabPanel>
                         ))}

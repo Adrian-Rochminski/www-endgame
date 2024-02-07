@@ -1,11 +1,15 @@
-// pages/driver/live_view/page.js
+// pages/owner/live_view/page.js
 import React from 'react';
-import PageClient from './page.client';
+import {LiveView} from './page.client';
+import {getServerSession} from "next-auth";
+import {authOptions} from "@/lib/auth";
 
-const Page = () => {
+const Page = async () => {
+  const session = await getServerSession(authOptions)
+
   return (
     <div>
-      <PageClient />
+      <LiveView {...session} />
     </div>
   );
 };

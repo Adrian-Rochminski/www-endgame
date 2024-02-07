@@ -53,7 +53,7 @@ export const Owner = (session) => {
 
     function liveView(selectedParking){
       console.log(selectedParking);
-      router.push("/owner/live_view?data=" + JSON.stringify(selectedParking.parking_id));
+      router.push("/owner/live_view?id=" + JSON.stringify(selectedParking._id));
     }
 
     // remove parking from system
