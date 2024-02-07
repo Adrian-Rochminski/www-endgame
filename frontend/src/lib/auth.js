@@ -23,10 +23,12 @@ export const authOptions = {
                     },
                 });
                 const data = res.data;
+                console.log(data);
                 if (res.status === 200 && data) {
                     return {
                         token: data.token,
-                        user: data.username
+                        user: data.username,
+                        role: data.role
                     };
                 } else {
                     return null;
@@ -40,11 +42,13 @@ export const authOptions = {
             if (user) {
                 token.user = user.user;
                 token.token = user.token;
+                token.role = user.role;
             }
             return token;
         },
         async session({ session, token }) {
             session.user = token.user;
+            session.role = token.role;
             session.token = token;
             return session;
         },

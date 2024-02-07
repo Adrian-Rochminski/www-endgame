@@ -5,18 +5,20 @@ import { Button } from 'primereact/button';
 import axios from 'axios';
 import { SERVER_ADDRESS, CLIENT_ADDRESS } from '../../utils/Links'
 import { MyPrimaryButton, MySecondaryButton } from './MyButtons';
+import {signOut} from "next-auth/react";
 
 export default function MenuSidebar({ visible, onHide }) {
 
-    function logout(){
+    async function logout() {
         axios.get(`${SERVER_ADDRESS}/user/logout`)
-          .then(response => {
-            console.log(response.data);
-          })
-          .catch(error => {
-            console.error('Error fetching data logout:', error);
-          });
-          window.location.href = `${CLIENT_ADDRESS}/`;
+            .then(response => {
+                console.log(response.data);
+            })
+            .catch(error => {
+                console.error('Error fetching data logout:', error);
+            });
+        await signOut();
+        window.location.href = `${CLIENT_ADDRESS}/`;
     }
 
     function toPasswdChange(){
