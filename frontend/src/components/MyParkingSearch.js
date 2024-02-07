@@ -20,8 +20,18 @@ const MyParkingSearch = ({ parkings, onSelectParking }) => {
         }, 250);
     };
 
+    const scopedStyle = `
+        .my-parking-search .p-inputtext:focus, .my-parking-search button:focus, .my-parking-search .p-button:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+    `;
+
     return (
-        <div>
+        <div className="my-parking-search">
+            <style>
+                {scopedStyle}
+            </style>
             <AutoComplete 
                 value={selectedParking} 
                 suggestions={filteredParkings} 
@@ -29,12 +39,14 @@ const MyParkingSearch = ({ parkings, onSelectParking }) => {
                 field="address" 
                 dropdown 
                 onChange={(e) => {
-                    console.log(e)
-                    setSelectedParking(e.value);
-                    const parking = parkings.find(p => p.address === e.value);
-                    onSelectParking(parking);
+                    const value = e.value;
+                    setSelectedParking(typeof value === 'object' ? value.address : value);
+                    const parking = typeof value === 'object' ? value : parkings.find(p => p.address === value);
+                    if (parking) {
+                        onSelectParking(parking);
+                    }
                 }}
-                placeholder="Wyszukaj parking"
+                placeholder="Łódź"
             />
         </div>
     );

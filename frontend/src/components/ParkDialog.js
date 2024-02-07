@@ -92,7 +92,12 @@ const ParkDialog = ({ visible, onHide, licensePlate, token }) => {
                         <MySecondaryButton style={{flex: 1}} label="Wszystkie" onClick={() => show_all()}/>
                     </div>
                 <br></br>
-                <MyParkingSearch parkings={parkings} onSelectParking={handleParkingSelect} />
+                    <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                        <p style={{ margin: 0 }}>Wyszukaj</p>
+                        <div style={{ marginLeft: 'auto', border: '2px solid #B8B8F3', padding: '8px', borderRadius: '5px' }}>
+                            <MyParkingSearch parkings={parkings} onSelectParking={handleParkingSelect} />
+                        </div>
+                    </div>
                 <br></br>
 
                 <ScrollPanel style={{ width: '400px', height: '300px' }}>
