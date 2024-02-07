@@ -424,7 +424,7 @@ def search_parking():
         return jsonify({"msg": "No parking found with given name"}), 404
 
 
-@parking.route("/parking_details/<id>", methods=["GET"])
+@parking.route("/parking_details/<parking_id>", methods=["GET"])
 @cross_origin()
 @jwt_required()
 def get_parking(parking_id):
