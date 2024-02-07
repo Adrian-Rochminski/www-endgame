@@ -57,10 +57,11 @@ def login():
     user = users_collection.find_one({'username': data['username']})
 
     if user and check_password_hash(user['password'], data['password']):
-        additional_claims = {"role": "owner" if user['is_owner'] else "driver"}
+        role = "owner" if user['is_owner'] else "driver"
+        additional_claims = {"role": role}
         expires = timedelta(days=7)
         access_token = create_access_token(identity=user['_id'], additional_claims=additional_claims, expires_delta=expires)
-        return jsonify(token=access_token, username=user['username']), 200
+        return jsonify(token=access_token, username=user['username'], role=role), 200
     else:
         return make_response('Bad username or password', 401)
 
