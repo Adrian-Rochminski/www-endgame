@@ -1,3 +1,4 @@
+import math
 import uuid
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -247,28 +248,38 @@ def park_the_car():
     return jsonify({"msg": "No spot available on this parking"}), 404
 
 
-def calculate_parking_fee(start_time, end_time, day_rate, night_rate, night_hours):
-    total_fee = 0.0
-    current_time = start_time
+def calculate_parking_fee(start_datetime, end_datetime, day_rate, night_rate, day_start, day_end,
+                           first_hour_multiplier, special_rate_multiplier, discount_hours=7):
+    total_duration = (end_datetime - start_datetime).total_seconds() / 3600
 
-    while current_time < end_time:
-        if night_hours['from'] <= current_time.time() < night_hours['to']:
-            next_time = datetime.combine(current_time.date(), night_hours['to'])
-            hours = (min(end_time, next_time) - current_time).total_seconds() / 3600
-            total_fee += hours * night_rate
-        else:
-            if current_time.time() >= night_hours['to']:
-                next_time = datetime.combine(current_time.date() + timedelta(days=1),
-                                             night_hours['from'])
+    if total_duration <= 0:
+        return 0
+
+    total_cost = 0.0
+    hours_counted = 0
+
+    while total_duration > 0:
+        if hours_counted == 0:
+            if day_start <= start_datetime.time() < day_end:
+                total_cost += day_rate * first_hour_multiplier
             else:
-                next_time = datetime.combine(current_time.date(),
-                                             night_hours['from'])
-            hours = (min(end_time, next_time) - current_time).total_seconds() / 3600
-            total_fee += hours * day_rate
+                total_cost += night_rate * first_hour_multiplier
+        elif 0 < hours_counted < discount_hours:
+            if day_start <= start_datetime.time() < day_end:
+                total_cost += day_rate * special_rate_multiplier
+            else:
+                total_cost += night_rate * special_rate_multiplier
+        else:
+            if day_start <= start_datetime.time() < day_end:
+                total_cost += day_rate
+            else:
+                total_cost += night_rate
 
-        current_time = next_time
+        start_datetime += timedelta(hours=1)
+        total_duration -= 1
+        hours_counted += 1
 
-    return total_fee
+    return total_cost
 
 
 @parking.route("/estimate_parking_fee", methods=["POST"])
@@ -289,8 +300,12 @@ def estimate_parking_fee():
             end_time = datetime.now()
             fee = calculate_parking_fee(
                 start_time, end_time,
-                parking_lot['day_rate'], parking_lot['night_rate'],
-                {'from': parking_lot['night_hours']['from'], 'to': parking_lot['night_hours']['to']}
+                parking_lot['day_rate'],
+                parking_lot['night_rate'],
+                parse_str_to_time(parking_lot['day_time_end']),
+                parse_str_to_time(parking_lot['day_time_start']),
+                parking_lot['extra_rules'].get('first_hour', 1.0),
+                parking_lot['extra_rules'].get('rate_from_six_hours', 1.0)
             )
             return jsonify({"estimated_fee": fee}), 200
 
@@ -318,9 +333,12 @@ def unpark_car():
             end_time = datetime.now()
             fee = calculate_parking_fee(
                 start_time, end_time,
-                parking_lot['day_rate'], parking_lot['night_rate'],
-                {'from': parse_str_to_time(parking_lot['day_time_end']),
-                 'to': parse_str_to_time(parking_lot['day_time_start'])}
+                parking_lot['day_rate'],
+                parking_lot['night_rate'],
+                parse_str_to_time(parking_lot['day_time_end']),
+                parse_str_to_time(parking_lot['day_time_start']),
+                parking_lot['extra_rules'].get('first_hour', 1.0),
+                parking_lot['extra_rules'].get('rate_from_six_hours', 1.0)
             )
 
             if float(user['money'].to_decimal()) < fee:
