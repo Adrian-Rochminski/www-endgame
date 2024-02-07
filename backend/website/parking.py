@@ -422,6 +422,7 @@ def search_parking():
 
 
 @parking.route("/parking_details/<id>", methods=["GET"])
+@cross_origin()
 @jwt_required()
 def get_parking(parking_id):
     user_id = get_jwt_identity()
@@ -637,3 +638,62 @@ def car_parking_statistics():
     return jsonify({"car_license_plate": car_license_plate, "total_paid": total_paid, "history": car_history}), 200
 
 
+@parking.route("/costs/summary", methods=["POST"])
+@cross_origin()
+@jwt_required()
+def parking_costs_summary():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+
+    if not data or not all(k in data for k in ('parking_id', 'start_date', 'end_date')):
+        return jsonify({"msg": "Missing required data"}), 400
+
+    parking_id = data['parking_id']
+    start_date = data['start_date']
+    end_date = data['end_date']
+
+    parking = parking_collection.find_one({"_id": parking_id})
+    if not parking:
+        return jsonify({"msg": "Parking not found"}), 404
+    if parking['owner_id'] != user_id:
+        return jsonify({"msg": "Unauthorized access"}), 403
+
+    try:
+        start_date_dt = datetime.strptime(start_date, "%Y-%m-%d")
+        end_date_dt = datetime.strptime(end_date, "%Y-%m-%d")
+    except ValueError:
+        return jsonify({"msg": "Invalid date format, expected YYYY-MM-DD"}), 400
+
+    cost_summary_per_month = {}
+    monthly_costs = [cost for cost in parking.get('costs', [])]
+
+    current_month = start_date_dt.replace(day=1)
+    while current_month <= end_date_dt:
+        month_str = current_month.strftime("%Y-%m")
+        cost_summary_per_month[month_str] = {'total_cost': 0, 'details': []}
+
+        for cost in monthly_costs:
+            cost_start_dt = cost['start_date']
+            cost_end_dt = cost.get('end_date', None)
+
+            if cost['periodic']:
+                if (cost_start_dt < current_month + timedelta(days=32)) and (
+                        not cost_end_dt or cost_end_dt >= current_month):
+                    cost_summary_per_month[month_str]['total_cost'] += cost['price']
+                    cost['start_date'] = cost['start_date'].strftime("%Y-%m-%d %H:%M:%S"),
+                    cost['end_date'] = cost['end_date'].strftime("%Y-%m-%d %H:%M:%S") if 'end_date' in cost else None
+                    cost_summary_per_month[month_str]['details'].append(cost)
+            elif cost_start_dt.year == current_month.year and cost_start_dt.month == current_month.month:
+                cost_summary_per_month[month_str]['total_cost'] += cost['price']
+                cost_summary_per_month[month_str]['details'].append(cost)
+
+        current_month = (current_month.replace(day=28) + timedelta(days=4)).replace(day=1)
+
+    response_data = [{
+        "month": month,
+        "total_cost": details['total_cost'],
+        "costs": [dict(detail, start_date=detail['start_date'], end_date=detail.get('end_date', 'ongoing')) for detail
+                  in details['details']]
+    } for month, details in sorted(cost_summary_per_month.items())]
+
+    return jsonify({"parking_id": parking_id, "cost_summary": response_data}), 200
