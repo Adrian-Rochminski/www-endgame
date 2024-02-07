@@ -314,7 +314,7 @@ def unpark_car():
 
     for usage in parking_lot['current_usage']:
         if usage['car'] == plate:
-            start_time = datetime.strptime(usage['start_time'], "%Y-%m-%d %H:%M:%S")
+            start_time = usage['start_time']
             end_time = datetime.now()
             fee = calculate_parking_fee(
                 start_time, end_time,
@@ -549,3 +549,68 @@ def delete_cost():
         return jsonify({"msg": "Cost not found or removal failed"}), 404
 
     return jsonify({"msg": "Cost removed successfully"}), 200
+
+@parking.route("/statistics/spots/<parking_id>", methods=["GET"])
+@cross_origin()
+@jwt_required()
+def parking_spots_statistics(parking_id):
+    user_id = get_jwt_identity()
+    parking = parking_collection.find_one({"_id": parking_id})
+
+    if parking is None:
+        return jsonify({"msg": "Parking not found"}), 404
+    if parking['owner_id'] != user_id:
+        return jsonify({"msg": "Unauthorized access"}), 403
+
+    earnings_per_spot = {}
+
+    availability_per_spot = {f"{spot['floor']}-{spot['spot']}": spot['available'] for spot in parking.get('spots', [])}
+
+    for entry in parking.get('history', []):
+        spot_identifier = f"{entry['floor']}-{entry['spot']}"
+        earnings_per_spot[spot_identifier] = earnings_per_spot.get(spot_identifier, 0) + entry['paid']
+
+    spots_statistics = []
+    for spot_identifier, earnings in earnings_per_spot.items():
+        floor, spot_number = map(int, spot_identifier.split('-'))
+        spots_statistics.append({
+            "floor": floor,
+            "spot_number": spot_number,
+            "availability": availability_per_spot[spot_identifier],
+            "total_earnings": earnings,
+        })
+
+    return jsonify({"parking_id": parking_id, "spots_statistics": spots_statistics}), 200
+
+
+
+@parking.route("/statistics/cars", methods=["GET"])
+@cross_origin()
+@jwt_required()
+def car_parking_statistics():
+    user_id = get_jwt_identity()
+    car_license_plate = request.args.get("license_plate")
+
+    if not car_license_plate:
+        return jsonify({"msg": "Missing car license plate"}), 400
+
+    # Fetch parking histories for the given car across all parking lots
+    parkings = parking_collection.find({"history.license_plate": car_license_plate, "owner_id": user_id})
+
+    car_statistics = []
+    for parking in parkings:
+        for entry in parking.get('history', []):
+            if entry['license_plate'] == car_license_plate:
+                car_stats = {
+                    "parking_id": parking['_id'],
+                    "address": parking['address'],
+                    "start_date": entry['start_date'].strftime("%Y-%m-%d %H:%M:%S"),
+                    "end_date": entry['end_date'].strftime("%Y-%m-%d %H:%M:%S") if entry['end_date'] else None,
+                    "paid": entry['paid'],
+                    # Include more details as necessary
+                }
+                car_statistics.append(car_stats)
+
+    return jsonify({"car_license_plate": car_license_plate, "car_statistics": car_statistics}), 200
+
+
