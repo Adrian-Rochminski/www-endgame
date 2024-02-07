@@ -55,7 +55,8 @@ def login():
     user = users_collection.find_one({'username': data['username']})
 
     if user and check_password_hash(user['password'], data['password']):
-        access_token = create_access_token(identity=user['_id'])
+        additional_claims = {"role": "owner" if user['is_owner'] else "driver"}
+        access_token = create_access_token(identity=user['_id'], additional_claims=additional_claims)
         return jsonify(token=access_token, username=user['username']), 200
     else:
         return make_response('Bad username or password', 401)
