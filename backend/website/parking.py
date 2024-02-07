@@ -154,6 +154,7 @@ def check_car_status(plate):
             if usage['car'] == plate:
                 return jsonify({"msg": "The car is parked",
                                 "parking_id": parking_lot['_id'],
+                                "parking_address": parking_lot['address'],
                                 "floor": usage['floor'],
                                 "spot": usage['spot']
                                 }), 200
