@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from flask import Blueprint, jsonify, request, make_response
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -56,7 +58,8 @@ def login():
 
     if user and check_password_hash(user['password'], data['password']):
         additional_claims = {"role": "owner" if user['is_owner'] else "driver"}
-        access_token = create_access_token(identity=user['_id'], additional_claims=additional_claims)
+        expires = timedelta(days=7)
+        access_token = create_access_token(identity=user['_id'], additional_claims=additional_claims, expires_delta=expires)
         return jsonify(token=access_token, username=user['username']), 200
     else:
         return make_response('Bad username or password', 401)
