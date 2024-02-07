@@ -431,8 +431,8 @@ def get_parking(parking_id):
     user_id = get_jwt_identity()
     parking = parking_collection.find_one({"_id": parking_id})
     if parking['owner_id'] == user_id:
-        return jsonify({"msg": "The parking does not belong to this account"}), 401
-    return jsonify(parking), 200
+        return jsonify(parking), 200
+    return jsonify({"msg": "The parking does not belong to this account"}), 401
 
 
 @parking.route("/costs", methods=["POST"])

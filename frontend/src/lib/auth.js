@@ -23,7 +23,7 @@ export const authOptions = {
                     },
                 });
                 const data = res.data;
-                console.log(res);
+                console.log(data);
                 if (res.status === 200 && data) {
                     return {
                         token: data.token,
