@@ -8,11 +8,17 @@ import { Toast } from 'primereact/toast';
 import axios from 'axios';
 import { SERVER_ADDRESS } from '../../utils/Links'
 import reload from '../../utils/Reload'
-import { MyPrimaryButton } from './MyButtons';
+import { MyPrimaryButton, MySecondaryButton } from './MyButtons';
+import MyParkingSearch from './MyParkingSearch';
 
 const ParkDialog = ({ visible, onHide, licensePlate, token }) => {
     const toast = useRef(null);
     const [parkings, setParkings] = useState([]);
+    const [selectedParking, setSelectedParking] = useState(null);
+
+    const handleParkingSelect = (parking) => {
+        setSelectedParking(parking);
+    };
 
     const config = {
         headers: {
@@ -53,6 +59,24 @@ const ParkDialog = ({ visible, onHide, licensePlate, token }) => {
           reload(3000);
     };
 
+    const show_cheapest = () => {
+        axios.get(`${SERVER_ADDRESS}/parking/find_cheapest`, config)
+          .then(response => {
+            console.log("Cheapest parking: " + JSON.stringify(response.data));
+            // Assume response.data is the cheapest parking object
+            setSelectedParking(response.data); // This updates selectedParking and triggers a re-render
+            toast.current.show({ severity: 'success', summary: 'Success', detail: 'Cheapest parking selected', life: 3000 });
+          })
+          .catch(error => {
+            console.error('Error fetching data:', error);
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to find cheapest parking - ' + error, life: 3000 });
+          });
+    };
+
+    const show_all = () => {
+        setSelectedParking(null);
+    }
+
     return (
         <>
             <Toast ref={toast} />
@@ -63,9 +87,51 @@ const ParkDialog = ({ visible, onHide, licensePlate, token }) => {
                 icon="pi pi-exclamation-triangle" 
             >
                 <div>
+                    <div style={{display: 'flex', gap: '10px'}}>
+                        <MySecondaryButton style={{flex: 1}} label="Najtańszy" onClick={() => show_cheapest()}/>
+                        <MySecondaryButton style={{flex: 1}} label="Wszystkie" onClick={() => show_all()}/>
+                    </div>
+                <br></br>
+                    <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                        <p style={{ margin: 0 }}>Wyszukaj</p>
+                        <div style={{ marginLeft: 'auto', border: '2px solid #B8B8F3', padding: '8px', borderRadius: '5px' }}>
+                            <MyParkingSearch parkings={parkings} onSelectParking={handleParkingSelect} />
+                        </div>
+                    </div>
+                <br></br>
 
                 <ScrollPanel style={{ width: '400px', height: '300px' }}>
                     <div className="card">
+                        {selectedParking ? (
+                                <Accordion>
+                                    <AccordionTab 
+                                        header={
+                                            <div className="flex align-items-center gap-2 w-full">
+                                                <span className="font-bold white-space-nowrap">{selectedParking.address}</span>
+                                            </div>
+                                        } 
+                                        key={selectedParking._id}
+                                    >
+                                        <div>
+                                            <h5><b>Dane podstawowe</b></h5>
+                                            <p>Taryfa 1: {selectedParking.day_rate}</p>
+                                            <p>Taryfa 2: {selectedParking.night_rate}</p>
+                                            <p>Początek dnia: {selectedParking.day_time_start}</p>
+                                            <p>Koniec dnia: {selectedParking.day_time_end}</p>
+                                            {selectedParking.extra_rules && 
+                                            selectedParking.extra_rules.first_hour &&
+                                            selectedParking.extra_rules.rate_from_six_hours && (
+                                                <>
+                                                    <h5><b>Dane dodatkowe</b></h5>
+                                                    <p>Pierwsza godzina: {selectedParking.extra_rules.first_hour}</p>
+                                                    <p>Następne 6 godzin: {selectedParking.extra_rules.rate_from_six_hours}</p>
+                                                </>
+                                            )}
+                                            <MyPrimaryButton label="Wybierz" onClick={() => select_parking(selectedParking._id)}/>
+                                        </div>
+                                    </AccordionTab>
+                                </Accordion>
+                            ) : (
                         <Accordion>
                             {parkings.map((parking, index) => {
                                 return(
@@ -83,7 +149,9 @@ const ParkDialog = ({ visible, onHide, licensePlate, token }) => {
                                             <p>Taryfa 2: {parking.night_rate}</p>
                                             <p>Początek dnia: {parking.day_time_start}</p>
                                             <p>Koniec dnia: {parking.day_time_end}</p>
-                                            {parking.extra_rules && (
+                                            {parking.extra_rules && 
+                                            parking.extra_rules.first_hour &&
+                                            parking.extra_rules.rate_from_six_hours && (
                                                 <>
                                                     <h5><b>Dane dodatkowe</b></h5>
                                                     <p>Pierwsza godzina: {parking.extra_rules.first_hour}</p>
@@ -96,6 +164,7 @@ const ParkDialog = ({ visible, onHide, licensePlate, token }) => {
                                 )
                             })}
                         </Accordion>
+                    )}
                     </div>
                 </ScrollPanel>
 
