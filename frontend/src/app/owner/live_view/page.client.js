@@ -12,6 +12,7 @@ import { Toast } from 'primereact/toast';
 import reload from '../../../../utils/Reload'
 import { TabView, TabPanel } from 'primereact/tabview';
 import { Tooltip } from 'primereact/tooltip';
+import ParkingSpotDetailsDialog from '../../../components/ParkingSpotDetailsDialog'; 
 
 export const LiveView = (session) => {
     const router = useRouter();
@@ -19,6 +20,8 @@ export const LiveView = (session) => {
     const [parking, setParking] = useState([]);
     const [stats, setStats] = useState([]);
     const getColor = (available) => available ? '#24D4A8' : '#EA526F';
+    const [dialogVisible, setDialogVisible] = useState(false);
+    const [selectedSpotHistory, setSelectedSpotHistory] = useState([]);
 
     let authHeader = {
         headers: {
@@ -38,23 +41,6 @@ export const LiveView = (session) => {
         }
       }, [router.query]);
 
-    const dummyData = {
-        "_id": "276c3fb1-98c4-1142-842a-64fbad65ab21",
-        "address": "Łódź, Radwańska 20",
-        "day_rate": 1.5,
-        "day_time_end": "20:00",
-        "day_time_start": "10:00",
-        "night_rate": 2.3,
-        "owner_id": "856316f2-e55e-4383-bf82-330195b89321",
-        "spots": [
-            {"available": false, "floor": 0, "spot": 0},
-            {"available": true, "floor": 0, "spot": 1},
-            {"available": true, "floor": 1, "spot": 0},
-            {"available": false, "floor": 1, "spot": 1}
-        ]
-    }
-
-    // endpoint has problems 07.02.24
     useEffect(() => {
         console.log("here -> " + parkingId)
         if (parkingId) {
@@ -62,12 +48,11 @@ export const LiveView = (session) => {
             .then(response => {
                 console.log(response.data);
                 setParking(response.data)
+                const cc = calculateParkingStats(response.data)
+                setStats(cc)
             })
             .catch(error => {
                 console.error('Error fetching data:', error);
-                setParking(dummyData)
-                const cc = calculateParkingStats(dummyData)
-                setStats(cc)
             });
         }
       }, [parkingId]);
@@ -99,6 +84,28 @@ export const LiveView = (session) => {
         return parkingStats;
     }
 
+    // adjust history
+    function formatHistoryForSpot(floor, spot, history) {
+        const spotHistory = history.filter(h => h.floor === floor && h.spot === spot);
+        if (spotHistory.length === 0) {
+            return [{ message: 'No history' }];
+        }
+        return spotHistory.map(h => ({
+            licensePlate: h.license_plate,
+            paid: h.paid,
+            start: new Date(h.start_date).toLocaleString(),
+            end: h.end_date ? new Date(h.end_date).toLocaleString() : 'Ongoing'
+        }));
+    }
+    
+
+    const onSpotClick = (floor, spot) => {
+        const history = formatHistoryForSpot(floor, spot, parking.history);
+        console.log("here" + JSON.stringify(history));
+        setSelectedSpotHistory(history);
+        setDialogVisible(true)
+    };
+    
 
     function costs(){
         // Not implemented
@@ -132,7 +139,8 @@ export const LiveView = (session) => {
                                             <React.Fragment key={index}>
                                                 {index % 3 === 0 && index !== 0 && <div style={{ clear: 'both' }}></div>}
                                                 <div
-                                                    id={`spot-${spot.floor}-${spot.spot}`} // Unique ID for each spot
+                                                    onClick={() => onSpotClick(spot.floor, spot.spot)}
+                                                    id={`spot-${spot.floor}-${spot.spot}`}
                                                     style={{
                                                         width: '150px',
                                                         height: '200px',
@@ -141,12 +149,11 @@ export const LiveView = (session) => {
                                                         margin: '5px',
                                                         textAlign: 'center',
                                                         lineHeight: '200px',
-                                                        borderRadius: '10px'
+                                                        borderRadius: '10px',
+                                                        cursor: 'pointer'
                                                     }}
                                                 >
                                                     Miejsce {spot.spot}
-                                                    {/* Tooltip component targeting the unique ID */}
-                                                    <Tooltip target={`#spot-${spot.floor}-${spot.spot}`} content={spot.available ? 'Dostępne' : 'Zajęte'} position="bottom" />
                                                 </div>
                                         </React.Fragment>
                                     ))
@@ -161,6 +168,9 @@ export const LiveView = (session) => {
 
             </Card>
           </div>
+
+          <ParkingSpotDetailsDialog visible={dialogVisible} onHide={() => setDialogVisible(false)} spotHistory={selectedSpotHistory} />
+
 
         </div>
 
