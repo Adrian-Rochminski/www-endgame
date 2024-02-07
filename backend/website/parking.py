@@ -680,12 +680,21 @@ def parking_costs_summary():
                 if (cost_start_dt < current_month + timedelta(days=32)) and (
                         not cost_end_dt or cost_end_dt >= current_month):
                     cost_summary_per_month[month_str]['total_cost'] += cost['price']
-                    cost['start_date'] = cost['start_date'].strftime("%Y-%m-%d %H:%M:%S"),
-                    cost['end_date'] = cost['end_date'].strftime("%Y-%m-%d %H:%M:%S") if 'end_date' in cost else None
-                    cost_summary_per_month[month_str]['details'].append(cost)
+                    cost['start_date'] = cost['start_date']
+                    cost['end_date'] = cost['end_date'] if cost.get('end_date') else None
+                    cost_summary_per_month[month_str]['details'].append({
+                        **cost,
+                        "start_date": cost['start_date'].strftime("%Y-%m-%d %H:%M:%S"),
+                        "end_date": cost['end_date'] if cost['end_date'] else None
+                    })
             elif cost_start_dt.year == current_month.year and cost_start_dt.month == current_month.month:
                 cost_summary_per_month[month_str]['total_cost'] += cost['price']
-                cost_summary_per_month[month_str]['details'].append(cost)
+                cost_summary_per_month[month_str]['details'].append({
+                    **cost,
+                    "start_date": cost['start_date'].strftime("%Y-%m-%d %H:%M:%S"),
+                    "end_date": cost['end_date'] if cost['end_date'] else None
+                    }
+                )
 
         current_month = (current_month.replace(day=28) + timedelta(days=4)).replace(day=1)
 
