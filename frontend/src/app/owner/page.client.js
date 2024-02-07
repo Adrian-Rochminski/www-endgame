@@ -29,7 +29,7 @@ export const Owner = (session) => {
 
     // First request: Fetch parkings
     useEffect(() => {
-        axios.get(`${SERVER_ADDRESS}/user/my_parkings`, authHeader)
+        axios.get(`${SERVER_ADDRESS}/my_parkings`, authHeader)
           .then(response => {
             console.log(JSON.stringify(response.data));
             setParkings(response.data)
@@ -53,7 +53,7 @@ export const Owner = (session) => {
 
     function liveView(selectedParking){
       console.log(selectedParking);
-      router.push("/owner/live_view?data=" + JSON.stringify(selectedParking));
+      router.push("/owner/live_view?data=" + JSON.stringify(selectedParking.parking_id));
     }
 
     // remove parking from system

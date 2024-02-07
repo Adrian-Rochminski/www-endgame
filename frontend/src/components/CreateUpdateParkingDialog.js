@@ -19,6 +19,8 @@ const CreateUpdatParkingDialog = ({ visible, onHide, oldParking, token }) => {
     };
 
     const accept = (values) => {
+        values["costs"] = []  // empty costs, can be changed later in costs page
+        console.log(values);
         (oldParking ? 
             axios.put(`${SERVER_ADDRESS}/parking/update`, values, config) :
             axios.post(`${SERVER_ADDRESS}/parking/make`, values, config)
