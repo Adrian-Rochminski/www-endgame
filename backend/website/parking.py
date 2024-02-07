@@ -580,25 +580,30 @@ def parking_spots_statistics(parking_id):
     if parking['owner_id'] != user_id:
         return jsonify({"msg": "Unauthorized access"}), 403
 
-    earnings_per_spot = {}
-
-    availability_per_spot = {f"{spot['floor']}-{spot['spot']}": spot['available'] for spot in parking.get('spots', [])}
+    spots_statistics = {}
+    for spot in parking.get('spots', []):
+        spot_identifier = f"{spot['floor']}-{spot['spot']}"
+        spots_statistics[spot_identifier] = {"total_earnings": 0, "history": [], "availability": spot['available']}
 
     for entry in parking.get('history', []):
         spot_identifier = f"{entry['floor']}-{entry['spot']}"
-        earnings_per_spot[spot_identifier] = earnings_per_spot.get(spot_identifier, 0) + entry['paid']
+        if spot_identifier in spots_statistics:
+            spots_statistics[spot_identifier]["total_earnings"] += entry['paid']
+            formatted_entry = entry.copy()
+            formatted_entry['start_date'] = entry['start_date'].strftime("%Y-%m-%d %H:%M:%S")
+            formatted_entry['end_date'] = entry['end_date'].strftime("%Y-%m-%d %H:%M:%S") if entry.get(
+                'end_date') else None
+            spots_statistics[spot_identifier]["history"].append(formatted_entry)
 
-    spots_statistics = []
-    for spot_identifier, earnings in earnings_per_spot.items():
-        floor, spot_number = map(int, spot_identifier.split('-'))
-        spots_statistics.append({
-            "floor": floor,
-            "spot_number": spot_number,
-            "availability": availability_per_spot[spot_identifier],
-            "total_earnings": earnings,
-        })
+    formatted_statistics = [{
+        "floor": int(identifier.split('-')[0]),
+        "spot_number": int(identifier.split('-')[1]),
+        "availability": stats["availability"],
+        "total_earnings": stats["total_earnings"],
+        "history": stats["history"]
+    } for identifier, stats in spots_statistics.items()]
 
-    return jsonify({"parking_id": parking_id, "spots_statistics": spots_statistics}), 200
+    return jsonify({"parking_id": parking_id, "spots_statistics": formatted_statistics}), 200
 
 
 
@@ -612,23 +617,23 @@ def car_parking_statistics():
     if not car_license_plate:
         return jsonify({"msg": "Missing car license plate"}), 400
 
-    # Fetch parking histories for the given car across all parking lots
-    parkings = parking_collection.find({"history.license_plate": car_license_plate, "owner_id": user_id})
+    all_parkings = parking_collection.find({"history.license_plate": car_license_plate, "owner_id": user_id})
 
-    car_statistics = []
-    for parking in parkings:
+    total_paid = 0
+    car_history = []
+
+    for parking in all_parkings:
         for entry in parking.get('history', []):
             if entry['license_plate'] == car_license_plate:
-                car_stats = {
+                total_paid += entry['paid']
+                car_history.append({
                     "parking_id": parking['_id'],
                     "address": parking['address'],
                     "start_date": entry['start_date'].strftime("%Y-%m-%d %H:%M:%S"),
-                    "end_date": entry['end_date'].strftime("%Y-%m-%d %H:%M:%S") if entry['end_date'] else None,
-                    "paid": entry['paid'],
-                    # Include more details as necessary
-                }
-                car_statistics.append(car_stats)
+                    "end_date": entry['end_date'].strftime("%Y-%m-%d %H:%M:%S") if entry.get('end_date') else None,
+                    "paid": entry['paid']
+                })
 
-    return jsonify({"car_license_plate": car_license_plate, "car_statistics": car_statistics}), 200
+    return jsonify({"car_license_plate": car_license_plate, "total_paid": total_paid, "history": car_history}), 200
 
 
