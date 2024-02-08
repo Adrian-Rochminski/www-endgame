@@ -108,14 +108,14 @@ export const LiveView = (session) => {
         setDialogVisible(true);
     };
     
-
+    // Implemented
     function costs(){
-        // Not implemented
-        router.push("/owner/costs");
+        console.log({"id": parkingId, "address": parking.address});
+        router.push("/owner/costs?data=" + JSON.stringify({"id": parkingId, "address": parking.address}));
     }
 
+    // Not implemented
     function statistics(){
-        // Not implemented
         router.push("/owner/stats");
     }
 
@@ -128,6 +128,7 @@ export const LiveView = (session) => {
 
                 <MyPrimaryButton label="Koszta" style={{ marginLeft: '0.5em' }} onClick={() => costs()}/>
                 <MySecondaryButton label="Statystyki" style={{ marginLeft: '0.5em' }} onClick={() => stats()}/>
+                <br></br><br></br>
 
                 <ScrollPanel style={{ width: '600px', height: '600px' }}>
                     <TabView scrollable>
