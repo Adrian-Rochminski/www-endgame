@@ -5,6 +5,7 @@ import Navbar from '../../../components/Navbar';
 import axios from 'axios';
 import { Card } from 'primereact/card';
 import { MyPrimaryButton, MySecondaryButton, MyCollapseButton } from '../../../components/MyButtons';
+import { CreateUpdateCostDialog } from '../../../components/CreateUpdateCostDialog';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { SERVER_ADDRESS } from '../../../../utils/Links'
@@ -20,6 +21,8 @@ export const Costs = (session) => {
     const [parkingId, setParkingId] = useState('')
     const [parkingAddress, setParkingAddress] = useState('')
     const [costs, setCosts] = useState([])
+    const [selectedCost, setSelectedCost] = useState({})
+    const [visibleCreateUpdateCostDialog, setVisibleCreateUpdateCostDialog] = useState(false)
 
     let authHeader = {
         headers: {
@@ -71,6 +74,14 @@ export const Costs = (session) => {
     }
 
 
+    // Show edit dialog
+    function edit(selectedCost){
+        console.log(selectedCost);
+        setSelectedCost(selectedCost);
+        setVisibleCreateUpdateCostDialog(true);
+    }
+
+
     return (
         <div className="Costs" style={style}>
           <Navbar />
@@ -83,39 +94,49 @@ export const Costs = (session) => {
 
                 <ScrollPanel style={{ width: '600px', height: '600px' }}>
 
-                <div className="card">
-                      <Accordion activeIndex={0}>
-                        
-                            {costs.map((cost, index) => (
-                                <AccordionTab
-                                    header={
-                                        <span className="flex align-items-center gap-2 w-full">
-                                            <span className="font-bold white-space-nowrap">{cost.name}</span>
-                                            {cost.periodic ? (<Image src="/periodic.svg" alt="periodic" width={20} height={20} priority />) : ("")}
-                                        </span>
-                                    }
-                                    key={index}
-                                >
-                                    <p className="m-0">
-                                        <div key={index} style={{ paddingBottom: '10px' }}>
-                                            <strong>Cena:</strong> {cost.price}<br />
-                                            <strong>Początek usługi:</strong> {cost.start_date}<br />
-                                            <strong>Koniec usługi:</strong> {cost.end_date ? cost.end_date : "Nie podano końca"}<br />
-                                        </div>
-                                        <MyCollapseButton label="Edytuj"/>
-                                        <MyCollapseButton label="Usuń"/>
-                                    </p>
-                                </AccordionTab>
-                            ))}
-                        
-                      </Accordion>
-                      </div>
+                    <div className="card">
+                        <Accordion activeIndex={0}>
+                            
+                                {costs.map((cost, index) => (
+                                    <AccordionTab
+                                        header={
+                                            <span className="flex align-items-center gap-2 w-full">
+                                                <span className="font-bold white-space-nowrap">{cost.name}</span>
+                                                {cost.periodic ? (<Image src="/periodic.svg" alt="periodic" width={20} height={20} priority />) : ("")}
+                                            </span>
+                                        }
+                                        key={index}
+                                    >
+                                        <p className="m-0">
+                                            <div key={index} style={{ paddingBottom: '10px' }}>
+                                                <strong>Cena:</strong> {cost.price}<br />
+                                                <strong>Początek usługi:</strong> {cost.start_date}<br />
+                                                <strong>Koniec usługi:</strong> {cost.end_date ? cost.end_date : "Nie podano końca"}<br />
+                                            </div>
+                                            <MyCollapseButton label="Edytuj" onClick={() => edit(cost)}/>
+                                            <MyCollapseButton label="Usuń"/>
+                                        </p>
+                                    </AccordionTab>
+                                ))}
+                            
+                        </Accordion>
+                    </div>
 
-                
                 </ScrollPanel>
+
+                    <MyPrimaryButton label="Dodaj nowe koszty" onClick={() => edit(null)}/>
 
             </Card>
           </div>
+
+
+          <CreateUpdateCostDialog
+            visible={visibleCreateUpdateCostDialog}
+            onHide={() => setVisibleCreateUpdateCostDialog(false)}
+            oldCost={selectedCost}
+            parkingId={parkingId}
+            token={session.token.token}
+            />
 
         </div>
 

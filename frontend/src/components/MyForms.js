@@ -14,6 +14,7 @@ export const MyFormField = props => {
             disabled={props.disabled}
             value={props.value}
             style={{...props.style, ...fieldStyle}} 
+            checked={props.checked}
         />
     );
 };
