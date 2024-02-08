@@ -299,7 +299,7 @@ def estimate_parking_fee():
 
     for usage in parking_lot['current_usage']:
         if usage['car'] == plate:
-            start_time = datetime.strptime(usage['start_time'], "%Y-%m-%d %H:%M:%S")
+            start_time = datetime
             end_time = datetime.now()
             fee = calculate_parking_fee(
                 start_time, end_time,
