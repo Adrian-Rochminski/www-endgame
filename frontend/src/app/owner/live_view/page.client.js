@@ -22,6 +22,7 @@ export const LiveView = (session) => {
     const getColor = (available) => available ? '#24D4A8' : '#EA526F';
     const [dialogVisible, setDialogVisible] = useState(false);
     const [selectedSpotHistory, setSelectedSpotHistory] = useState([]);
+    const [selectedSpotCurrentUsage, setSelectedSpotCurrentUsage] = useState([]);
 
     let authHeader = {
         headers: {
@@ -88,7 +89,7 @@ export const LiveView = (session) => {
     function formatHistoryForSpot(floor, spot, history) {
         const spotHistory = history.filter(h => h.floor === floor && h.spot === spot);
         if (spotHistory.length === 0) {
-            return [{ message: 'No history' }];
+            return [{ message: 'Brak historii dla tego miejsca.' }];
         }
         return spotHistory.map(h => ({
             licensePlate: h.license_plate,
@@ -101,9 +102,10 @@ export const LiveView = (session) => {
 
     const onSpotClick = (floor, spot) => {
         const history = formatHistoryForSpot(floor, spot, parking.history);
-        console.log("here" + JSON.stringify(history));
+        const currentUsage = parking.current_usage.filter(usage => usage.floor === floor && usage.spot === spot);
         setSelectedSpotHistory(history);
-        setDialogVisible(true)
+        setSelectedSpotCurrentUsage(currentUsage);
+        setDialogVisible(true);
     };
     
 
@@ -131,7 +133,8 @@ export const LiveView = (session) => {
                     <TabView scrollable>
                         {Object.entries(stats).map(([floor, stats]) => (
                             <TabPanel key={floor} header={"Poziom:" + floor}>
-                                <p key={floor}>Wolne: {stats.free}, Całość: {stats.total}</p>
+                                <p key={floor}><b>Wolne: {stats.free}, Całość: {stats.total}, Dzisiejszy dochód: {30}</b></p>
+                                <br></br>
                                 <div>
                                     {parking.spots
                                         .filter(spot => spot.floor.toString() === floor)
@@ -169,7 +172,7 @@ export const LiveView = (session) => {
             </Card>
           </div>
 
-          <ParkingSpotDetailsDialog visible={dialogVisible} onHide={() => setDialogVisible(false)} spotHistory={selectedSpotHistory} />
+          <ParkingSpotDetailsDialog visible={dialogVisible} onHide={() => setDialogVisible(false)} spotHistory={selectedSpotHistory} currentUsage={selectedSpotCurrentUsage} />
 
 
         </div>
