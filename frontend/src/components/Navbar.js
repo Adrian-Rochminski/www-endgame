@@ -10,7 +10,8 @@ const Navbar = ({ showMenuBtn = true }) => {
 
   const items = [
     {
-       label: 'ParkingOS',
+        label: 'ParkingOS',
+        url: '/driver'
     }
   ];
 
