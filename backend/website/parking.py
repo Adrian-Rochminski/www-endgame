@@ -526,11 +526,18 @@ def update_cost():
     if not parking:
         return jsonify({"msg": "Unauthorized or parking not found"}), 403
 
+    if parking and "costs" in parking:
+        cost_entry = [cost for cost in parking['costs'] if cost['_id'] == cost_id]
+        cost = cost_entry[0] if cost_entry else None
+    else:
+        return jsonify({"msg": "Cost not found"}), 400
+
+
     try:
-        start_date = data('start_date', None)
-        end_date = data('end_date', None)
-        parsed_start_date = datetime.strptime(start_date, "%Y-%m-%d") if start_date else parking['start_date']
-        parsed_end_date = datetime.strptime(end_date, "%Y-%m-%d") if end_date else parking['end_date']
+        start_date = data.get('start_date', None)
+        end_date = data.get('end_date', None)
+        parsed_start_date = datetime.strptime(start_date, "%Y-%m-%d") if start_date else cost['start_date']
+        parsed_end_date = datetime.strptime(end_date, "%Y-%m-%d") if end_date else cost['end_date']
     except ValueError:
         return jsonify({"msg": "Invalid date format, expected 'yyyy-mm-dd'"}), 400
 
