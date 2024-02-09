@@ -125,8 +125,20 @@ export const Driver = (session) => {
       let request = {
         "license_plate": selectedLicensePlate
       }
+
+      let config = {
+        method: 'delete',
+        maxBodyLength: Infinity,
+        url: `${SERVER_ADDRESS}/user/license_plate`,
+        headers: {
+          Authorization: "Bearer " + session.token.token
+        },
+        data : request
+      };
+
+      console.log(config);
       
-      axios.delete(`${SERVER_ADDRESS}/user/license_plate`, request, authHeader)
+      axios.request(config)
       .then(response => {
         console.log(response.data);
         toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(response.data)}`, life: 3000 });
@@ -135,7 +147,7 @@ export const Driver = (session) => {
         console.error('Error fetching data 1:', error);
         toast.current.show({ severity: 'error', summary: 'Błąd', detail: `${error}`, life: 3000 });
       });
-      //reload(3000);
+      reload(3000);
     }
 
     // temporary unavailable

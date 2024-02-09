@@ -43,7 +43,7 @@ const ShowTicketDialog = ({ visible, onHide, licensePlate, token }) => {
             >
                 <div>
                     <p className="m-0">Numer rejestracyjny: <b>{licensePlate}</b></p>
-                    <p className="m-0">Parking: <b>{plateDetails.address}</b></p>
+                    <p className="m-0">Parking: <b>{plateDetails.parking_address}</b></p>
                     <p className="m-0">Piętro: <b>{plateDetails.floor}</b></p>
                     <p className="m-0">Miejsce: <b>{plateDetails.spot}</b></p>
                     <br></br>

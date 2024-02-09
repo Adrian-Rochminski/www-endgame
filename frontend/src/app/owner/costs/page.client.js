@@ -83,13 +83,26 @@ export const Costs = (session) => {
 
     // remove cost from system
     function remove(selectedCost){
+        console.log(selectedCost)
         const request = {
             'parking_id': parkingId,
             'cost_id': selectedCost._id
         }
         console.log(request);
 
-        axios.delete(`${SERVER_ADDRESS}/costs/delete`, request, authHeader)
+        let config = {
+            method: 'delete',
+            maxBodyLength: Infinity,
+            url: `${SERVER_ADDRESS}/parking/costs/delete`,
+            headers: {
+              Authorization: "Bearer " + session.token.token
+            },
+            data : request
+          };
+    
+          console.log(config);
+          
+        axios.request(config)
         .then(response => {
           console.log(response.data);
           toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(response.data)}`, life: 3000 });
@@ -98,8 +111,10 @@ export const Costs = (session) => {
           console.error('Error fetching data 1:', error);
           toast.current.show({ severity: 'error', summary: 'Błąd', detail: `${error}`, life: 3000 });
         });
-        //reload(3000);
+        reload(3000);
       }
+      
+
 
     return (
         <div className="Costs" style={style}>

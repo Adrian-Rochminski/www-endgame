@@ -47,6 +47,7 @@ export const Owner = (session) => {
 
     // Show edit dialog
     function edit(selectedParking){
+      console.log(selectedParking)
         setSelectedParking(selectedParking);
         setVisibleCUPD(true)
     }

@@ -32,7 +32,8 @@ export const SignIn = (session) => {
                     redirect: false,
                 });
                 console.log('Login respose: ', {response});
-                toast.current.show({ severity: 'success', summary: 'Success', detail: 'Sign in successful', life: 3000 });
+                if(response.ok) toast.current.show({ severity: 'success', summary: 'Success', detail: 'Sign in successful', life: 3000 });
+                else toast.current.show({ severity: 'error', summary: 'Error', detail: "Logowanie nie powiodło się", life: 3000 });
                 router.push('/driver');
             } catch (error) {
                 const errorMessage = error.response?.data?.message || 'An error occurred';

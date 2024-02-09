@@ -60,8 +60,6 @@ const CreateUpdatParkingDialog = ({ visible, onHide, oldParking, token }) => {
                                     rate_from_six_hours: '',
                                 } : {
                                     address: oldParking.address,
-                                    floors: oldParking.floors,
-                                    spots_per_floor: oldParking.spots_per_floor,
                                     day_rate: oldParking.day_rate,
                                     night_rate: oldParking.night_rate,
                                     day_time_start: oldParking.day_time_start,
@@ -83,7 +81,8 @@ const CreateUpdatParkingDialog = ({ visible, onHide, oldParking, token }) => {
                                     <MyFormText htmlFor="address">Adres:</MyFormText>
                                     <MyFormField id="address" name="address" placeholder={oldParking ? oldParking.address : "Łódź, Radwańska 37"} type="text"/>
                                 </MyFormView>
-
+{!oldParking ? (
+    <>
                                 <MyFormView>
                                     <MyFormText htmlFor="floors">Piętra:</MyFormText>
                                     <MyFormField id="floors" name="floors" placeholder={oldParking ? oldParking.floors : "3"} step="1" min="1" type="number"/>
@@ -93,7 +92,9 @@ const CreateUpdatParkingDialog = ({ visible, onHide, oldParking, token }) => {
                                     <MyFormText htmlFor="spots_per_floor">Miejsca na piętrach:</MyFormText>
                                     <MyFormField id="spots_per_floor" name="spots_per_floor" placeholder={oldParking ? oldParking.spots_per_floor : "10"} step="1" min="1" type="number"/>
                                 </MyFormView>
-
+    </>
+) : ("")
+}
                                 <MyFormView>
                                     <MyFormText htmlFor="day_rate">Taryfa 1:</MyFormText>
                                     <MyFormField id="day_rate" name="day_rate" placeholder={oldParking ? oldParking.day_rate : "2.1"} step="0.1" min="0.1" type="number"/>
