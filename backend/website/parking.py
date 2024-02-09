@@ -501,11 +501,9 @@ def get_costs(parking_id):
     for cost in parking.get('costs', []):
         formatted_cost = cost.copy()
         if 'start_date' in cost and cost['start_date']:
-            start_date_obj = datetime.strptime(cost['start_date'], "%Y-%m-%d %H:%M:%S.%f")
-            formatted_cost['start_date'] = start_date_obj.strftime("%Y-%m-%d")
+            formatted_cost['start_date'] = cost['start_date'].strftime("%Y-%m-%d")
         if 'end_date' in cost and cost['end_date']:
-            end_date_obj = datetime.strptime(cost['end_date'], "%Y-%m-%d %H:%M:%S.%f") if cost['end_date'] else None
-            formatted_cost['end_date'] = end_date_obj.strftime("%Y-%m-%d") if end_date_obj else None
+            formatted_cost['end_date'] = cost['end_date'].strftime("%Y-%m-%d") if cost['end_date'] else None
         formatted_costs.append(formatted_cost)
 
     return jsonify({"costs": formatted_costs}), 200
