@@ -47,7 +47,7 @@ export const CreateUpdateCostDialog = ({ visible, onHide, oldCost, parkingId, to
             console.error('Error fetching data:', error);
             toast.current.show({ severity: 'error', summary: 'Błąd', detail: `${JSON.stringify(request)} - ${error}`, life: 3000 });
           });
-          //reload(3000);
+          reload(3000);
     };
 
     const handleChange = (event) => {
@@ -86,7 +86,7 @@ export const CreateUpdateCostDialog = ({ visible, onHide, oldCost, parkingId, to
 
                                 <MyFormView>
                                     <MyFormText htmlFor="price">Koszty:</MyFormText>
-                                    <MyFormField id="price" name="price" placeholder="200" type="number"/>
+                                    <MyFormField id="price" name="price" placeholder="200" step="1" min="1" type="number"/>
                                 </MyFormView>
 
                                 <MyFormView>
@@ -125,7 +125,7 @@ export const CreateUpdateCostDialog = ({ visible, onHide, oldCost, parkingId, to
 
                                 <MyFormView>
                                     <MyFormText htmlFor="price">Koszty:</MyFormText>
-                                    <MyFormField id="price" name="price" placeholder={oldCost.price} type="number"/>
+                                    <MyFormField id="price" name="price" placeholder={oldCost.price} step="1" min="1" type="number"/>
                                 </MyFormView>
 
                                 <MyFormView>
@@ -134,7 +134,7 @@ export const CreateUpdateCostDialog = ({ visible, onHide, oldCost, parkingId, to
                                 </MyFormView>
 
                                 <MyFormView>
-                                    <MyFormText htmlFor="end_date">Początek usługi:</MyFormText>
+                                    <MyFormText htmlFor="end_date">Koniec usługi:</MyFormText>
                                     <MyFormField id="end_date" name="end_date" placeholder={oldCost.end_date} type="text"/>
                                 </MyFormView>
 

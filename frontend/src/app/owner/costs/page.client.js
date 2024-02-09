@@ -24,6 +24,8 @@ export const Costs = (session) => {
     const [selectedCost, setSelectedCost] = useState({})
     const [visibleCreateUpdateCostDialog, setVisibleCreateUpdateCostDialog] = useState(false)
 
+    const toast = useRef(null);
+
     let authHeader = {
         headers: {
             Authorization: "Bearer " + session.token.token
@@ -81,6 +83,25 @@ export const Costs = (session) => {
         setVisibleCreateUpdateCostDialog(true);
     }
 
+    // remove cost from system
+    function remove(selectedCost){
+        const request = {
+            'parking_id': parkingId,
+            'cost_id': selectedCost._id
+        }
+        console.log(request);
+
+        axios.delete(`${SERVER_ADDRESS}/costs/delete`, request, authHeader)
+        .then(response => {
+          console.log(response.data);
+          toast.current.show({ severity: 'success', summary: 'Sukces', detail: `${JSON.stringify(response.data)}`, life: 3000 });
+        })
+        .catch(error => {
+          console.error('Error fetching data 1:', error);
+          toast.current.show({ severity: 'error', summary: 'Błąd', detail: `${error}`, life: 3000 });
+        });
+        //reload(3000);
+      }
 
     return (
         <div className="Costs" style={style}>
@@ -111,10 +132,10 @@ export const Costs = (session) => {
                                             <div key={index} style={{ paddingBottom: '10px' }}>
                                                 <strong>Cena:</strong> {cost.price}<br />
                                                 <strong>Początek usługi:</strong> {cost.start_date}<br />
-                                                <strong>Koniec usługi:</strong> {cost.end_date ? cost.end_date : "Nie podano końca"}<br />
+                                                <strong>Koniec usługi:</strong> {cost.end_date ? cost.end_date : "Usługa jest cykliczna"}<br />
                                             </div>
                                             <MyCollapseButton label="Edytuj" onClick={() => edit(cost)}/>
-                                            <MyCollapseButton label="Usuń"/>
+                                            <MyCollapseButton label="Usuń" onClick={() => remove(cost)}/>
                                         </p>
                                     </AccordionTab>
                                 ))}
@@ -137,6 +158,8 @@ export const Costs = (session) => {
             parkingId={parkingId}
             token={session.token.token}
             />
+
+            <Toast ref={toast} />
 
         </div>
 
