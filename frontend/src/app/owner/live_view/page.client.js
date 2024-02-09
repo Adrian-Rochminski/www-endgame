@@ -75,8 +75,10 @@ export const LiveView = (session) => {
                 
                 return axios.post(`${SERVER_ADDRESS}/parking/estimate_parking_fee`, request, authHeader)
                     .then(response => {
-                        console.log('Estimated fee for car', usage.car, ':', response.data);
-                        return Object.assign({}, {"floor": usage.floor, "spot": usage.spot}, response.data);
+                        let fee = parseFloat(response.data.estimated_fee);
+                        fee = fee.toFixed(2);
+                        console.log('Estimated fee for car', usage.car, ':', fee);
+                        return Object.assign({}, {"floor": usage.floor, "spot": usage.spot}, {"estimated_fee": fee.toString()});
                     })
                     .catch(error => {
                         console.error('Error estimating parking fee for car', usage.car, ':', error);
