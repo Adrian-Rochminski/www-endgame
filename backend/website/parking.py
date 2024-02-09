@@ -344,7 +344,9 @@ def unpark_car():
                 parking_lot['extra_rules'].get('rate_from_six_hours', 1.0)
             )
 
-            if float(user['money'].to_decimal()) < fee:
+            money = user['money'] if isinstance(user['money'], float) else float(user['money'].to_decimal())
+
+            if money < fee:
                 return jsonify({"msg": "Insufficient funds"}), 400
 
             user_collection.update_one(
