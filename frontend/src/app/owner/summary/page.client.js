@@ -10,12 +10,15 @@ import { SERVER_ADDRESS } from '../../../../utils/Links'
 import { Chart } from 'primereact/chart';
 import {Accordion, AccordionTab} from "primereact/accordion";
 import {Toast} from "primereact/toast";
+import { Calendar } from 'primereact/calendar';
 
 export const Summary = (session) => {
     const router = useRouter();
-    const [parkingId, setParkingId] = useState('')
-    const [parkingAddress, setParkingAddress] = useState('')
-    const [summary, setSummary] = useState([])
+    const [parkingId, setParkingId] = useState('');
+    const [parkingAddress, setParkingAddress] = useState('');
+    const [dates, setDates] = useState(getDates());
+    const [summary, setSummary] = useState([]);
+    const [summaryData, setSummaryData] = useState({});
 
     const toast = useRef(null);
 
@@ -23,6 +26,12 @@ export const Summary = (session) => {
         headers: {
             Authorization: "Bearer " + session.token.token
         }
+    }
+
+    function getDates(){
+        let currentDate = new Date();
+        currentDate.setMonth(currentDate.getMonth() - 3);
+        return [currentDate, new Date()]
     }
 
     // get parking id and address from browser header
@@ -43,21 +52,64 @@ export const Summary = (session) => {
 
     // /costs/summary
 
-    // load existing costs
-    useEffect(() => {
+    function fetchSummary() {
         console.log("here summary -> " + parkingId)
+
+        let data = {
+            "parking_id": parkingId,
+            "start_date": dates[0].toISOString().split('T')[0],
+            "end_date": dates[1].toISOString().split('T')[0]
+        }
+
         if (parkingId) {
-            axios.get(`${SERVER_ADDRESS}/parking/summary/${parkingId}`, authHeader)
+            axios.post(`${SERVER_ADDRESS}/parking/summary`, data, authHeader)
                 .then(response => {
                     console.log(response.data);
-                    console.log(response.data.costs);
-                    setSummary(response.data.costs);
+                    console.log(response.data.profit_summary);
+                    setSummary(response.data.profit_summary);
+                    extractData();
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
                 });
         }
-    }, [parkingId]);
+    }
+
+    function extractData(){
+        const months = summary.map(item => item.month);
+        const profits = summary.map(item => item.profit);
+        const costs = summary.map(item => item.cost);
+        const earnings = summary.map(item => item.earnings);
+
+        const data = {
+            labels: months,
+            datasets: [
+                {
+                    label: 'Bilans',
+                    data: profits,
+                    fill: false,
+                    borderColor: 'rgb(75,192,192)',
+                    tension: 0.4
+                },
+                {
+                    label: 'Koszta',
+                    data: costs,
+                    fill: false,
+                    borderColor: 'rgb(192,75,75)',
+                    tension: 0.4
+                },
+                {
+                    label: 'Zyski',
+                    data: earnings,
+                    fill: false,
+                    borderColor: 'rgb(83,192,75)',
+                    tension: 0.4
+                }
+            ]
+        };
+
+        setSummaryData(data);
+    }
 
 
     function liveView(){
@@ -78,37 +130,21 @@ export const Summary = (session) => {
                     <MySecondaryButton label="Koszty" style={{ marginLeft: '0.5em' }} onClick={() => costs()}/>
                     <br></br><br></br>
 
-                    <ScrollPanel style={{ width: '600px', height: '600px' }}>
 
-                        <div className="card">
-                            <Accordion activeIndex={0}>
+                        <div className="card" style={{ width: '600px'}}>
 
-                                {/*{costs.map((cost, index) => (*/}
-                                {/*    <AccordionTab*/}
-                                {/*        header={*/}
-                                {/*            <span className="flex align-items-center gap-2 w-full">*/}
-                                {/*                <span className="font-bold white-space-nowrap">{cost.name}</span>*/}
-                                {/*                {cost.periodic ? (<Image src="/periodic.svg" alt="periodic" width={20} height={20} priority />) : ("")}*/}
-                                {/*            </span>*/}
-                                {/*        }*/}
-                                {/*        key={index}*/}
-                                {/*    >*/}
-                                {/*        <p className="m-0">*/}
-                                {/*            <div key={index} style={{ paddingBottom: '10px' }}>*/}
-                                {/*                <strong>Cena:</strong> {cost.price}<br />*/}
-                                {/*                <strong>Początek usługi:</strong> {cost.start_date}<br />*/}
-                                {/*                <strong>Koniec usługi:</strong> {cost.end_date ? cost.end_date : "Usługa jest cykliczna"}<br />*/}
-                                {/*            </div>*/}
-                                {/*            <MyCollapseButton label="Edytuj" onClick={() => edit(cost)}/>*/}
-                                {/*            <MyCollapseButton label="Usuń" onClick={() => remove(cost)}/>*/}
-                                {/*        </p>*/}
-                                {/*    </AccordionTab>*/}
-                                {/*))}*/}
+                            <label style={textStyle}>Przedział czasowy:</label>
+                            <Calendar value={dates} onChange={(e) => setDates(e.value)} selectionMode="range" readOnlyInput style={fieldStyle} view="month" dateFormat="yy-mm-dd" />
+                            <MyPrimaryButton label="Pokaż" onClick={() => fetchSummary()} style={{marginLeft:30}}/>
 
-                            </Accordion>
+                            <div style={{marginTop: 30}}>
+                                { summary ?
+                                        <Chart type="line" data={summaryData}  />
+                                        : <>Brak danych do wyświetlenia</>
+                                }
+                            </div>
                         </div>
 
-                    </ScrollPanel>
                 </Card>
             </div>
 
@@ -130,3 +166,16 @@ const card_style = {
     alignItems: 'center',
     justifyContent: 'center'
 }
+
+const textStyle = {
+    marginRight: 30,
+};
+
+const fieldStyle = {
+    border: "1px solid #06b6d4",
+    padding: "0px 10px",
+    borderRadius: "5px",
+    flexGrow: 0,
+    textAlign: "right",
+    outline: 'none',
+};
