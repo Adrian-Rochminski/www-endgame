@@ -18,11 +18,13 @@ export const LiveView = (session) => {
     const router = useRouter();
     const [parkingId, setParkingId] = useState('')
     const [parking, setParking] = useState([]);
+    const [updatedParking, setUpdatedParking] = useState([]);
     const [stats, setStats] = useState([]);
     const getColor = (available) => available ? '#24D4A8' : '#EA526F';
     const [dialogVisible, setDialogVisible] = useState(false);
     const [selectedSpotHistory, setSelectedSpotHistory] = useState([]);
     const [selectedSpotCurrentUsage, setSelectedSpotCurrentUsage] = useState([]);
+    const [feeSum, setFeeSum] = useState(0);
 
     let authHeader = {
         headers: {
@@ -58,6 +60,51 @@ export const LiveView = (session) => {
         }
       }, [parkingId]);
     if (!parking || !stats) { return <p>Waiting for parking ...</p>; }
+
+
+    useEffect(() => {
+        console.log("fee: " + parking)
+        console.log(updatedParking);
+        if (parkingId && parking && parking.current_usage && parking.current_usage.length > 0) {
+            var parkingCopy = JSON.parse(JSON.stringify(parking));
+            var promises = parking.current_usage.map((usage) => {
+                const request = {
+                    plate: usage.car,
+                    parking_id: parking._id,
+                };
+                
+                return axios.post(`${SERVER_ADDRESS}/parking/estimate_parking_fee`, request, authHeader)
+                    .then(response => {
+                        console.log('Estimated fee for car', usage.car, ':', response.data);
+                        return Object.assign({}, {"floor": usage.floor, "spot": usage.spot}, response.data);
+                    })
+                    .catch(error => {
+                        console.error('Error estimating parking fee for car', usage.car, ':', error);
+                        return null;
+                    });
+            });
+    
+            Promise.all(promises).then(results => {
+                const validResults = results.filter(result => result !== null);
+                console.log(validResults);
+                
+                parkingCopy.spots.forEach(spot_el => {
+                    const matchingResult = validResults.find(result => result.floor === spot_el.floor && result.spot === spot_el.spot);
+                    if (matchingResult) {
+                        console.log("matched");
+                        spot_el.estimated_fee = matchingResult.estimated_fee;
+                    }
+                });
+    
+                console.log("The res 2");
+                console.log(parkingCopy);
+                setParking(parkingCopy);
+                setUpdatedParking("OK fee");
+            });
+        }
+        else {setUpdatedParking("NOK fee" + Math.floor(Math.random() * 100));}
+    }, [updatedParking]);
+    
 
       // Calculate capacity of parking
     function calculateParkingStats(data) {
@@ -134,7 +181,7 @@ export const LiveView = (session) => {
                     <TabView scrollable>
                         {Object.entries(stats).map(([floor, stats]) => (
                             <TabPanel key={floor} header={"Poziom:" + floor}>
-                                <p key={floor}><b>Wolne: {stats.free}, Całość: {stats.total}, Dzisiejszy dochód: {30}</b></p>
+                                <p key={floor}><b>Wolne: {stats.free}, Całość: {stats.total}</b></p>
                                 <br></br>
                                 <div>
                                     {parking.spots
@@ -157,9 +204,10 @@ export const LiveView = (session) => {
                                                         cursor: 'pointer'
                                                     }}
                                                 >
-                                                    Miejsce {spot.spot}
+                                                    Miejsce {spot.spot} |
+                                                    <b> {spot.estimated_fee ? spot.estimated_fee : "Brak"}</b>
                                                 </div>
-                                        </React.Fragment>
+                                            </React.Fragment>
                                     ))
                                 }
 
