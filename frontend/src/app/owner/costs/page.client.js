@@ -70,7 +70,7 @@ export const Costs = (session) => {
     }
 
     function summary(){
-        router.push("/owner/summary?id=" + JSON.stringify(parkingId));
+        router.push("/owner/summary?data=" + JSON.stringify({"id": parkingId, "address": parkingAddress}));
     }
 
 

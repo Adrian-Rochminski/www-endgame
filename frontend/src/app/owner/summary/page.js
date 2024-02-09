@@ -1,5 +1,5 @@
 import React from 'react';
-import Summary from "./page.client";
+import {Summary} from "./page.client";
 import {getServerSession} from "next-auth";
 import {authOptions} from "@/lib/auth";
 

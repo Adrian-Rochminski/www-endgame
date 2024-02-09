@@ -4,109 +4,115 @@ import React, { useState, useEffect, useRef } from 'react';
 import Navbar from '../../../components/Navbar';
 import axios from 'axios';
 import { Card } from 'primereact/card';
-import { MyPrimaryButton, MySecondaryButton } from '../../../components/MyButtons';
+import {MyCollapseButton, MyPrimaryButton, MySecondaryButton} from '../../../components/MyButtons';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { SERVER_ADDRESS } from '../../../../utils/Links'
 import { Chart } from 'primereact/chart';
+import {Accordion, AccordionTab} from "primereact/accordion";
+import {Toast} from "primereact/toast";
 
-export default function Summary() {
+export const Summary = (session) => {
     const router = useRouter();
-    const [stats, setStats] = useState([]);
+    const [parkingId, setParkingId] = useState('')
+    const [parkingAddress, setParkingAddress] = useState('')
+    const [summary, setSummary] = useState([])
 
-    const dummyData = {
-        "parking_id": "1e5bd36d-0f73-4d93-a62f-3a3c86b2330f",
-        "profit_summary": [
-            {
-                "cost": 2450.0,
-                "month": "2023-12",
-                "profit": -2450.0,
-                "revenue": 0.0
-            },
-            {
-                "cost": 750.0,
-                "month": "2024-01",
-                "profit": -750.0,
-                "revenue": 0.0
-            },
-            {
-                "cost": 750.0,
-                "month": "2024-02",
-                "profit": -745.0188753923334,
-                "revenue": 4.981124607666667
-            },
-            {
-                "cost": 750.0,
-                "month": "2024-03",
-                "profit": -750.0,
-                "revenue": 0.0
-            }
-        ]
+    const toast = useRef(null);
+
+    let authHeader = {
+        headers: {
+            Authorization: "Bearer " + session.token.token
+        }
     }
 
-    // endpoint not implemented
+    // get parking id and address from browser header
     useEffect(() => {
-        axios.get(`${SERVER_ADDRESS}/parking/summary`)
-            .then(response => {
-                console.log(response.data);
-                setStats(response.data)
-            })
-            .catch(error => {
-                console.error('Error fetching data 1:', error);
-                setStats(dummyData)
-            });
-    }, []);
-    if (!stats) { return <p>Waiting for summary ...</p>; }
-
-
-    const [chartData, setChartData] = useState({});
-    const [chartOptions, setChartOptions] = useState({});
-
-    useEffect(() => {
-        const data = {
-            labels: ['Q1', 'Q2', 'Q3', 'Q4'],
-            datasets: [
-                {
-                    label: 'Sales',
-                    data: [540, 325, 702, 620],
-                    backgroundColor: [
-                        'rgba(255, 159, 64, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(153, 102, 255, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgb(255, 159, 64)',
-                        'rgb(75, 192, 192)',
-                        'rgb(54, 162, 235)',
-                        'rgb(153, 102, 255)'
-                    ],
-                    borderWidth: 1
-                }
-            ]
-        };
-        const options = {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
+        const queryParams = new URLSearchParams(window.location.search);
+        const data = queryParams.get('data');
+        if (data) {
+            console.log(data);
+            try {
+                const jsonData = JSON.parse(data);
+                setParkingId(jsonData["id"]);
+                setParkingAddress(jsonData["address"]);
+            } catch (error) {
+                console.error("Error parsing JSON:", error);
             }
-        };
+        }
+    }, [router.query]);
 
-        setChartData(data);
-        setChartOptions(options);
-    }, []);
+    // /costs/summary
+
+    // load existing costs
+    useEffect(() => {
+        console.log("here summary -> " + parkingId)
+        if (parkingId) {
+            axios.get(`${SERVER_ADDRESS}/parking/summary/${parkingId}`, authHeader)
+                .then(response => {
+                    console.log(response.data);
+                    console.log(response.data.costs);
+                    setSummary(response.data.costs);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+    }, [parkingId]);
+
+
+    function liveView(){
+        router.push("/owner/live_view?id=" + JSON.stringify(parkingId));
+    }
+
+    function costs(){
+        router.push("/owner/costs?data=" + JSON.stringify({"id": parkingId, "address": parkingAddress}));
+    }
 
     return (
-        <div className="LiveView" style={style}>
+        <div className="Costs" style={style}>
             <Navbar />
             <div className="card flex justify-content-center mt-10" style={card_style}>
-                <Card title={"Parking: " + stats.id} subTitle="" className="md:w-75rem">
+                <Card title={"Podsumowanie parkingu: " + parkingAddress} subTitle="" className="md:w-75rem">
 
-                    <p className="m-0">Podsumowanie kosztów:</p>
-                    <Chart type="bar" data={chartData} options={chartOptions} />
+                    <MyPrimaryButton label="Podgląd" style={{ marginLeft: '0.5em' }} onClick={() => liveView()}/>
+                    <MySecondaryButton label="Koszty" style={{ marginLeft: '0.5em' }} onClick={() => costs()}/>
+                    <br></br><br></br>
 
+                    <ScrollPanel style={{ width: '600px', height: '600px' }}>
+
+                        <div className="card">
+                            <Accordion activeIndex={0}>
+
+                                {/*{costs.map((cost, index) => (*/}
+                                {/*    <AccordionTab*/}
+                                {/*        header={*/}
+                                {/*            <span className="flex align-items-center gap-2 w-full">*/}
+                                {/*                <span className="font-bold white-space-nowrap">{cost.name}</span>*/}
+                                {/*                {cost.periodic ? (<Image src="/periodic.svg" alt="periodic" width={20} height={20} priority />) : ("")}*/}
+                                {/*            </span>*/}
+                                {/*        }*/}
+                                {/*        key={index}*/}
+                                {/*    >*/}
+                                {/*        <p className="m-0">*/}
+                                {/*            <div key={index} style={{ paddingBottom: '10px' }}>*/}
+                                {/*                <strong>Cena:</strong> {cost.price}<br />*/}
+                                {/*                <strong>Początek usługi:</strong> {cost.start_date}<br />*/}
+                                {/*                <strong>Koniec usługi:</strong> {cost.end_date ? cost.end_date : "Usługa jest cykliczna"}<br />*/}
+                                {/*            </div>*/}
+                                {/*            <MyCollapseButton label="Edytuj" onClick={() => edit(cost)}/>*/}
+                                {/*            <MyCollapseButton label="Usuń" onClick={() => remove(cost)}/>*/}
+                                {/*        </p>*/}
+                                {/*    </AccordionTab>*/}
+                                {/*))}*/}
+
+                            </Accordion>
+                        </div>
+
+                    </ScrollPanel>
                 </Card>
             </div>
+
+            <Toast ref={toast} />
 
         </div>
 
