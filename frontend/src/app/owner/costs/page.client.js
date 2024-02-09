@@ -64,15 +64,13 @@ export const Costs = (session) => {
         }
       }, [parkingId]);
 
-    
-    // Implemented
+
     function liveView(){
         router.push("/owner/live_view?id=" + JSON.stringify(parkingId));
     }
 
-    // Not implemented
-    function statistics(){
-        router.push("/owner/stats");
+    function summary(){
+        router.push("/owner/summary?id=" + JSON.stringify(parkingId));
     }
 
 
@@ -110,7 +108,7 @@ export const Costs = (session) => {
               <Card title={"Koszty parkingu: " + parkingAddress} subTitle="" className="md:w-75rem">
 
                     <MyPrimaryButton label="Podgląd" style={{ marginLeft: '0.5em' }} onClick={() => liveView()}/>
-                    <MySecondaryButton label="Statystyki" style={{ marginLeft: '0.5em' }} onClick={() => stats()}/>
+                    <MySecondaryButton label="Podsumowanie" style={{ marginLeft: '0.5em' }} onClick={() => summary()}/>
                     <br></br><br></br>
 
                 <ScrollPanel style={{ width: '600px', height: '600px' }}>

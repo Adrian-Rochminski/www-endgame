@@ -107,16 +107,14 @@ export const LiveView = (session) => {
         setSelectedSpotCurrentUsage(currentUsage);
         setDialogVisible(true);
     };
-    
-    // Implemented
+
     function costs(){
         console.log({"id": parkingId, "address": parking.address});
         router.push("/owner/costs?data=" + JSON.stringify({"id": parkingId, "address": parking.address}));
     }
 
-    // Not implemented
-    function statistics(){
-        router.push("/owner/stats");
+    function summary(){
+        router.push("/owner/summary?id=" + JSON.stringify(parkingId));
     }
 
 
@@ -127,7 +125,7 @@ export const LiveView = (session) => {
               <Card title={"Parking: " + parking.address} subTitle="" className="md:w-75rem">
 
                 <MyPrimaryButton label="Koszta" style={{ marginLeft: '0.5em' }} onClick={() => costs()}/>
-                <MySecondaryButton label="Statystyki" style={{ marginLeft: '0.5em' }} onClick={() => stats()}/>
+                <MySecondaryButton label="Podsumowanie" style={{ marginLeft: '0.5em' }} onClick={() => summary()}/>
                 <br></br><br></br>
 
                 <ScrollPanel style={{ width: '600px', height: '600px' }}>
