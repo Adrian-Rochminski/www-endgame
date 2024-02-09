@@ -24,7 +24,7 @@ export default async function Home() {
                     <LinkButton name={"Zarejestruj się"} link={"/auth/register"}/>
                     <br></br>
                     <br></br>
-                    <MySecondaryButton label="Zaloguj" onClick={() => signIn(undefined, {callbackUrl: '/driver'})}/>
+                    <MySecondaryButton label="Zaloguj się" onClick={() => signIn(undefined, {callbackUrl: '/driver'})}/>
                 </div>
             }
         </div>
